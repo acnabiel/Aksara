@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM php:8.4-cli
 
 # 1. System dependencies
 RUN apt-get update && apt-get install -y \
@@ -19,7 +19,7 @@ COPY . .
 
 # 5. Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-# RUN composer install --no-dev --optimize-autoloader
+RUN composer update --no-dev --optimize-autoloader
 
 # 6. Frontend build
 RUN npm install && npm run build
