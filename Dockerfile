@@ -7,23 +7,23 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install \
     pdo_mysql mbstring exif pcntl bcmath gd
 
-# 2. Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# 2. Node.js 20 (WAJIB untuk Vite 7)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 WORKDIR /app
 
-# 3. Copy SEMUA source dulu (agar artisan ada)
+# 3. Copy source
 COPY . .
 
-# 4. Install Composer
+# 4. Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
-RUN php artisan config:clear
-RUN php artisan route:clear
 
 # 5. Build frontend
-RUN npm install && npm run build
+RUN rm -rf node_modules package-lock.json \
+    && npm install \
+    && npm run build
 
 # 6. Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
