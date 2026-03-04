@@ -1,27 +1,31 @@
 FROM php:8.4-cli
 
+# 1. System dependencies
 RUN apt-get update && apt-get install -y \
     git unzip zip curl \
     libpng-dev libonig-dev libxml2-dev \
     && docker-php-ext-install \
     pdo_mysql mbstring exif pcntl bcmath gd
 
+# 2. Node.js
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
 WORKDIR /app
 
-# Copy composer dulu biar cache optimal
-COPY composer.json composer.lock ./
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
-
-# Baru copy semua source
+# 3. Copy SEMUA source dulu (agar artisan ada)
 COPY . .
 
+# 4. Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader
+RUN php artisan config:clear
+RUN php artisan route:clear
+
+# 5. Build frontend
 RUN npm install && npm run build
 
+# 6. Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
