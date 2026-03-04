@@ -19,7 +19,7 @@ COPY . .
 
 # 5. Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer update --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader
 
 # 6. Frontend build
 RUN npm install && npm run build
