@@ -4,31 +4,33 @@ FROM php:8.4-cli
 RUN apt-get update && apt-get install -y \
     git unzip zip curl \
     libpng-dev libonig-dev libxml2-dev \
-    libwebp-dev libjpeg62-turbo-dev libfreetype6-dev \
-    ffmpeg \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install \
     pdo_mysql mbstring exif pcntl bcmath gd
 
-# 2. Node.js 20 (WAJIB untuk Vite 7)
+# 🔧 Tambahkan ini
+RUN echo "upload_max_filesize=100M" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "post_max_size=100M" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/uploads.ini \
+ && echo "max_input_time=300" >> /usr/local/etc/php/conf.d/uploads.ini
+
+# 2. Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 WORKDIR /app
 
-# 3. Copy source
 COPY . .
 
-# 4. Composer
+# 3. Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# 5. Build frontend
+# 4. Build frontend
 RUN rm -rf node_modules package-lock.json \
     && npm install \
     && npm run build
 
-# 6. Permissions
+# 5. Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
