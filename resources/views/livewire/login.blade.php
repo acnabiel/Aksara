@@ -10,7 +10,7 @@
         <div class="text-center mb-8">
             <a href="/" wire:navigate class="inline-block">
                 <h1 class="text-4xl font-bold font-serif gradient-text tracking-tight">AKSARA</h1>
-                <p class="text-slate-400 text-sm mt-2 tracking-widest uppercase">Galeri Kenangan Sekolah</p>
+                <p class="text-slate-400 text-sm mt-2 tracking-widest uppercase">Berjuta Kata mengukir kenangan</p>
             </a>
         </div>
 
