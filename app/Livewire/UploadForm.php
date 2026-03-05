@@ -150,12 +150,17 @@ class UploadForm extends Component
             unlink($compressedPath);
         } else {
             // Compress and Resize Photo if large
-            $compressedPhotoPath = $this->getTempPath() . '.webp';
-            $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
+            $compressedPhotoPath = $this->getTempPath('webp');
+            $success = $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
             
-            $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
-            \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, file_get_contents($compressedPhotoPath));
-            unlink($compressedPhotoPath);
+            if ($success && file_exists($compressedPhotoPath)) {
+                $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
+                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPhotoPath, 'r'));
+                unlink($compressedPhotoPath);
+            } else {
+                // If optimization fails, use original file
+                $finalPath = $this->file->store('galleries/photos', 'public');
+            }
         }
 
         Gallery::create([
@@ -196,20 +201,24 @@ class UploadForm extends Component
             $temporaryPath = $this->file->getRealPath();
 
             if ($this->type === 'video') {
-                $compressedPath = $this->getTempPath();
+                $compressedPath = $this->getTempPath('mp4');
                 $this->compressVideo($temporaryPath, $compressedPath);
                 
                 $finalPath = 'galleries/videos/' . basename($compressedPath);
-                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, file_get_contents($compressedPath));
+                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPath, 'r'));
                 unlink($compressedPath);
             } else {
                 // Compress and Resize Photo
-                $compressedPhotoPath = $this->getTempPath() . '.webp';
-                $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
+                $compressedPhotoPath = $this->getTempPath('webp');
+                $success = $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
                 
-                $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
-                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, file_get_contents($compressedPhotoPath));
-                unlink($compressedPhotoPath);
+                if ($success && file_exists($compressedPhotoPath)) {
+                    $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPhotoPath, 'r'));
+                    unlink($compressedPhotoPath);
+                } else {
+                    $finalPath = $this->file->store('galleries/photos', 'public');
+                }
             }
 
             $data['file_path'] = $finalPath;
@@ -240,31 +249,29 @@ class UploadForm extends Component
         }
     }
 
-    private function optimizePhoto(string $source, string $destination): void
+    private function optimizePhoto(string $source, string $destination): bool
     {
         try {
-            // Use GD to resize and convert to WebP for better speed and compression
-            $info = getimagesize($source);
-            if (!$info) {
-                copy($source, $destination);
-                return;
+            // Check for WebP support
+            if (!function_exists('imagewebp')) {
+                return false;
             }
+
+            $info = getimagesize($source);
+            if (!$info) return false;
 
             $mime = $info['mime'];
             switch ($mime) {
-                case 'image/jpeg': $img = imagecreatefromjpeg($source); break;
-                case 'image/png':  $img = imagecreatefrompng($source); break;
-                case 'image/webp': $img = imagecreatefromwebp($source); break;
-                case 'image/gif':  $img = imagecreatefromgif($source); break;
-                default: copy($source, $destination); return;
+                case 'image/jpeg': $img = @imagecreatefromjpeg($source); break;
+                case 'image/png':  $img = @imagecreatefrompng($source); break;
+                case 'image/webp': $img = @imagecreatefromwebp($source); break;
+                case 'image/gif':  $img = @imagecreatefromgif($source); break;
+                default: return false;
             }
 
-            if (!$img) {
-                copy($source, $destination);
-                return;
-            }
+            if (!$img) return false;
 
-            // Max dimensions (e.g. 1920px)
+            // Max dimensions (1920px)
             $maxWidth = 1920;
             $maxHeight = 1920;
             $width = imagesx($img);
@@ -276,28 +283,27 @@ class UploadForm extends Component
                 $newHeight = (int)($height * $ratio);
                 
                 $newImg = imagecreatetruecolor($newWidth, $newHeight);
-                
-                // Preserve transparency for PNG/WebP if needed (though we're converting to WebP)
                 imagealphablending($newImg, false);
                 imagesavealpha($newImg, true);
                 
                 imagecopyresampled($newImg, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                imagewebp($newImg, $destination, 80); // 80 quality for good balance
+                imagewebp($newImg, $destination, 80);
                 imagedestroy($newImg);
             } else {
                 imagewebp($img, $destination, 80);
             }
 
             imagedestroy($img);
+            return true;
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Photo Optimization Error: " . $e->getMessage());
-            copy($source, $destination);
+            return false;
         }
     }
 
-    private function getTempPath(): string
+    private function getTempPath(string $extension): string
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'temp_' . uniqid() . '.mp4';
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'temp_' . uniqid() . '.' . $extension;
     }
 
     private function resetForm(): void
