@@ -102,30 +102,29 @@ class UploadForm extends Component
     {
         $this->isUploading = true;
 
-        // Validate based on type and edit mode
-        $fileRules = $this->editId
-            ? ($this->type === 'photo' ? $this->editPhotoRules : $this->editVideoRules)
-            : ($this->type === 'photo' ? $this->photoRules : $this->videoRules);
-
         if (!$this->isAdmin) {
             $this->category = Auth::user()->name;
         }
 
-        $this->validate(array_merge([
+        $this->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'category' => 'required|string|max:100',
             'type' => 'required|in:photo,video',
-        ], $fileRules));
+        ]);
 
-        if (!$this->isAdmin) {
-            $finalCategory = Auth::user()->name;
-        } else {
-            $finalCategory = $this->category === '__custom__' ? $this->customCategory : $this->category;
+        if (!$this->file && !$this->editId) {
+            $this->addError('file', 'File harus dipilih.');
+            $this->isUploading = false;
+            return;
         }
 
+        $finalCategory = $this->isAdmin 
+            ? ($this->category === '__custom__' ? $this->customCategory : $this->category)
+            : Auth::user()->name;
+
         if (!$finalCategory) {
-            $this->addError('category', 'Kategori harus diisi.');
+            $this->addError('category', 'Kelas harus diisi.');
             $this->isUploading = false;
             return;
         }
@@ -238,8 +237,10 @@ class UploadForm extends Component
 
     private function compressVideo(string $source, string $destination): void
     {
-        // Use ultrafast preset for maximum speed as requested
-        $command = "ffmpeg -i " . escapeshellarg($source) . " -vcodec libx264 -crf 28 -preset ultrafast -acodec mp3 " . escapeshellarg($destination) . " 2>&1";
+        // CRF 30: Good compression. 
+        // scale: 'min(1280,iw)':-1 -> Limit to 720p to make processing 4x faster than 1080p
+        // -preset ultrafast -> fastest encoding possible
+        $command = "ffmpeg -i " . escapeshellarg($source) . " -vf \"scale='min(1280,iw)':-1\" -vcodec libx264 -crf 30 -preset ultrafast -acodec aac -b:a 128k " . escapeshellarg($destination) . " 2>&1";
         
         exec($command, $output, $returnCode);
 

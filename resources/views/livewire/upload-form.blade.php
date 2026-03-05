@@ -104,7 +104,32 @@
                     </div>
 
                     {{-- File Upload --}}
-                    <div x-data="{ preview: null, fileName: '', fileSize: '' }">
+                    <div x-data="{ 
+                        preview: null, 
+                        fileName: '', 
+                        fileSize: '', 
+                        selectedFile: null,
+                        uploadProgress: 0,
+                        isUploading: false,
+                        async handleUpload() {
+                            if (!this.selectedFile) {
+                                $wire.save();
+                                return;
+                            }
+                            
+                            this.isUploading = true;
+                            
+                            @this.upload('file', this.selectedFile, (uploadedName) => {
+                                this.isUploading = false;
+                                $wire.save();
+                            }, () => {
+                                this.isUploading = false;
+                                alert('Upload gagal. Pastikan ukuran file sesuai.');
+                            }, (event) => {
+                                this.uploadProgress = event.detail.progress;
+                            });
+                        }
+                    }">
                         <label class="block text-sm font-medium text-slate-300 mb-2">
                             File {{ $editId ? '(kosongkan jika tidak ingin mengubah)' : '' }}
                         </label>
@@ -148,12 +173,13 @@
                                 </div>
                                 <input
                                     type="file"
-                                    wire:model="file"
+                                    x-ref="fileInput"
                                     class="hidden"
                                     accept="{{ $type === 'photo' ? 'image/jpeg,image/png,image/jpg,image/gif,image/webp' : 'video/mp4,video/mpeg,video/quicktime,video/webm' }}"
                                     @change="
                                         const file = $event.target.files[0];
                                         if (file) {
+                                            selectedFile = file;
                                             preview = URL.createObjectURL(file);
                                             fileName = file.name;
                                             const size = file.size;
@@ -167,13 +193,16 @@
                         </template>
 
                         {{-- Upload Progress --}}
-                        <div wire:loading wire:target="file" class="mt-3">
-                            <div class="flex items-center gap-2 text-sm text-primary-400">
-                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <div x-show="isUploading" class="mt-3">
+                            <div class="w-full bg-slate-800 rounded-full h-1.5 mb-2">
+                                <div class="bg-primary-500 h-1.5 rounded-full transition-all duration-300" :style="'width: ' + uploadProgress + '%'"></div>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-primary-400">
+                                <svg class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                 </svg>
-                                Mengupload file...
+                                <span x-text="'Sedang mengupload ke server... ' + uploadProgress + '%'"></span>
                             </div>
                         </div>
 
@@ -185,20 +214,21 @@
                         <button
                             type="button"
                             wire:click="closeForm"
+                            @click="preview = null; selectedFile = null;"
                             class="flex-1 py-2.5 px-4 rounded-xl border border-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-800 transition-all"
                         >
                             Batal
                         </button>
                         <button
-                            type="submit"
+                            type="button"
+                            @click="handleUpload"
                             class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white text-sm font-semibold transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                            wire:loading.attr="disabled"
-                            wire:target="save,file"
+                            :disabled="isUploading"
                         >
-                            <span wire:loading.remove wire:target="save">{{ $editId ? 'Perbarui' : 'Upload' }}</span>
-                            <span wire:loading wire:target="save" class="flex items-center justify-center gap-2">
+                            <span x-show="!isUploading && !@entangle('isUploading')">{{ $editId ? 'Perbarui' : 'Upload' }}</span>
+                            <span x-show="isUploading || @entangle('isUploading')" class="flex items-center justify-center gap-2">
                                 <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                Menyimpan...
+                                <span x-text="isUploading ? 'Mengupload (' + uploadProgress + '%)' : 'Menyimpan...'"></span>
                             </span>
                         </button>
                     </div>
