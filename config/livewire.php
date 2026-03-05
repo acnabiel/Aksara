@@ -13,7 +13,7 @@ return [
 
     'temporary_file_upload' => [
         'disk' => null,        // Uses default filesystem disk (local)
-        'rules' => null,       // Auto-applies component validation rules
+        'rules' => 'file|max:102400',       // 100MB max limit
         'directory' => null,   // Uses livewire-tmp by default
         'middleware' => null,   // Uses web middleware
         'preview_mimes' => [   // Supported MIME types for file previews

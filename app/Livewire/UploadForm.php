@@ -138,34 +138,14 @@ class UploadForm extends Component
 
     private function createItem(string $category): void
     {
-        $temporaryPath = $this->file->getRealPath();
-        
-        if ($this->type === 'video') {
-            $compressedPath = $this->getTempPath();
-            $this->compressVideo($temporaryPath, $compressedPath);
-            
-            $finalPath = 'galleries/videos/' . basename($compressedPath);
-            \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, file_get_contents($compressedPath));
-            unlink($compressedPath);
-        } else {
-            // Compress and Resize Photo if large
-            $compressedPhotoPath = $this->getTempPath('webp');
-            $success = $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
-            
-            if ($success && file_exists($compressedPhotoPath)) {
-                $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
-                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPhotoPath, 'r'));
-                unlink($compressedPhotoPath);
-            } else {
-                // If optimization fails, use original file
-                $finalPath = $this->file->store('galleries/photos', 'public');
-            }
-        }
+        $path = $this->type === 'photo'
+            ? $this->file->store('galleries/photos', 'public')
+            : $this->file->store('galleries/videos', 'public');
 
         Gallery::create([
             'title' => $this->title,
             'description' => $this->description ?: null,
-            'file_path' => $finalPath,
+            'file_path' => $path,
             'type' => $this->type,
             'category' => $category,
             'file_size' => $this->file->getSize(),
@@ -197,30 +177,11 @@ class UploadForm extends Component
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($gallery->file_path);
             }
 
-            $temporaryPath = $this->file->getRealPath();
+            $path = $this->type === 'photo'
+                ? $this->file->store('galleries/photos', 'public')
+                : $this->file->store('galleries/videos', 'public');
 
-            if ($this->type === 'video') {
-                $compressedPath = $this->getTempPath('mp4');
-                $this->compressVideo($temporaryPath, $compressedPath);
-                
-                $finalPath = 'galleries/videos/' . basename($compressedPath);
-                \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPath, 'r'));
-                unlink($compressedPath);
-            } else {
-                // Compress and Resize Photo
-                $compressedPhotoPath = $this->getTempPath('webp');
-                $success = $this->optimizePhoto($temporaryPath, $compressedPhotoPath);
-                
-                if ($success && file_exists($compressedPhotoPath)) {
-                    $finalPath = 'galleries/photos/' . basename($compressedPhotoPath);
-                    \Illuminate\Support\Facades\Storage::disk('public')->put($finalPath, fopen($compressedPhotoPath, 'r'));
-                    unlink($compressedPhotoPath);
-                } else {
-                    $finalPath = $this->file->store('galleries/photos', 'public');
-                }
-            }
-
-            $data['file_path'] = $finalPath;
+            $data['file_path'] = $path;
             $data['file_size'] = $this->file->getSize();
         }
 
@@ -235,77 +196,6 @@ class UploadForm extends Component
         $this->isUploading = false;
     }
 
-    private function compressVideo(string $source, string $destination): void
-    {
-        // CRF 30: Good compression. 
-        // scale: 'min(1280,iw)':-1 -> Limit to 720p to make processing 4x faster than 1080p
-        // -preset ultrafast -> fastest encoding possible
-        $command = "ffmpeg -i " . escapeshellarg($source) . " -vf \"scale='min(1280,iw)':-1\" -vcodec libx264 -crf 30 -preset ultrafast -acodec aac -b:a 128k " . escapeshellarg($destination) . " 2>&1";
-        
-        exec($command, $output, $returnCode);
-
-        if ($returnCode !== 0) {
-            \Illuminate\Support\Facades\Log::error("FFmpeg Error: " . implode("\n", $output));
-            copy($source, $destination);
-        }
-    }
-
-    private function optimizePhoto(string $source, string $destination): bool
-    {
-        try {
-            // Check for WebP support
-            if (!function_exists('imagewebp')) {
-                return false;
-            }
-
-            $info = getimagesize($source);
-            if (!$info) return false;
-
-            $mime = $info['mime'];
-            switch ($mime) {
-                case 'image/jpeg': $img = @imagecreatefromjpeg($source); break;
-                case 'image/png':  $img = @imagecreatefrompng($source); break;
-                case 'image/webp': $img = @imagecreatefromwebp($source); break;
-                case 'image/gif':  $img = @imagecreatefromgif($source); break;
-                default: return false;
-            }
-
-            if (!$img) return false;
-
-            // Max dimensions (1920px)
-            $maxWidth = 1920;
-            $maxHeight = 1920;
-            $width = imagesx($img);
-            $height = imagesy($img);
-
-            if ($width > $maxWidth || $height > $maxHeight) {
-                $ratio = min($maxWidth / $width, $maxHeight / $height);
-                $newWidth = (int)($width * $ratio);
-                $newHeight = (int)($height * $ratio);
-                
-                $newImg = imagecreatetruecolor($newWidth, $newHeight);
-                imagealphablending($newImg, false);
-                imagesavealpha($newImg, true);
-                
-                imagecopyresampled($newImg, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-                imagewebp($newImg, $destination, 80);
-                imagedestroy($newImg);
-            } else {
-                imagewebp($img, $destination, 80);
-            }
-
-            imagedestroy($img);
-            return true;
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Photo Optimization Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    private function getTempPath(string $extension): string
-    {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'temp_' . uniqid() . '.' . $extension;
-    }
 
     private function resetForm(): void
     {
