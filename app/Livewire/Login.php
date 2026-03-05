@@ -28,7 +28,7 @@ class Login extends Component
 
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
             session()->regenerate();
-            $this->redirect(route('admin.dashboard'), navigate: true);
+            $this->redirect(route('admin.dashboard'));
         } else {
             $this->isLoading = false;
             $this->addError('email', 'Email atau password salah.');

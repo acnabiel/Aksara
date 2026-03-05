@@ -71,28 +71,34 @@
                         @error('description') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Category --}}
+                    {{-- Class/Category --}}
                     <div>
-                        <label for="category" class="block text-sm font-medium text-slate-300 mb-2">Kategori</label>
-                        <select
-                            wire:model.live="category"
-                            id="category"
-                            class="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white transition-all focus:border-primary-500/50"
-                        >
-                            <option value="">Pilih kategori...</option>
-                            @foreach($allCategories as $cat)
-                                <option value="{{ $cat }}">{{ $cat }}</option>
-                            @endforeach
-                            <option value="__custom__">+ Kategori Baru</option>
-                        </select>
-
-                        @if($category === '__custom__')
-                            <input
-                                wire:model="customCategory"
-                                type="text"
-                                placeholder="Masukkan nama kategori baru..."
-                                class="w-full mt-2 px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white placeholder-slate-500 transition-all focus:border-primary-500/50"
+                        <label for="category" class="block text-sm font-medium text-slate-300 mb-2">Kelas</label>
+                        @if($isAdmin)
+                            <select
+                                wire:model.live="category"
+                                id="category"
+                                class="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white transition-all focus:border-primary-500/50"
                             >
+                                <option value="">Pilih Kelas...</option>
+                                @foreach($allCategories as $cat)
+                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                @endforeach
+                                <option value="__custom__">+ Kelas Baru</option>
+                            </select>
+
+                            @if($category === '__custom__')
+                                <input
+                                    wire:model="customCategory"
+                                    type="text"
+                                    placeholder="Masukkan nama kelas baru..."
+                                    class="w-full mt-2 px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white placeholder-slate-500 transition-all focus:border-primary-500/50"
+                                >
+                            @endif
+                        @else
+                            <div class="w-full px-4 py-2.5 bg-slate-800/30 border border-slate-700/30 rounded-xl text-sm text-slate-400">
+                                {{ Auth::user()->name }}
+                            </div>
                         @endif
                         @error('category') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>

@@ -32,6 +32,15 @@ class UploadForm extends Component
     public bool $showForm = false;
     public bool $isUploading = false;
     public ?int $editId = null;
+    public bool $isAdmin = false;
+
+    public function mount(): void
+    {
+        $this->isAdmin = Auth::user()->email === 'admin@aksara.com' || Auth::user()->email === 'admin@aksara.sch.id';
+        if (!$this->editId && !$this->isAdmin) {
+            $this->category = Auth::user()->name;
+        }
+    }
 
     public function boot(): void
     {
@@ -98,6 +107,10 @@ class UploadForm extends Component
             ? ($this->type === 'photo' ? $this->editPhotoRules : $this->editVideoRules)
             : ($this->type === 'photo' ? $this->photoRules : $this->videoRules);
 
+        if (!$this->isAdmin) {
+            $this->category = Auth::user()->name;
+        }
+
         $this->validate(array_merge([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
@@ -105,7 +118,11 @@ class UploadForm extends Component
             'type' => 'required|in:photo,video',
         ], $fileRules));
 
-        $finalCategory = $this->category === '__custom__' ? $this->customCategory : $this->category;
+        if (!$this->isAdmin) {
+            $finalCategory = Auth::user()->name;
+        } else {
+            $finalCategory = $this->category === '__custom__' ? $this->customCategory : $this->category;
+        }
 
         if (!$finalCategory) {
             $this->addError('category', 'Kategori harus diisi.');
@@ -136,7 +153,10 @@ class UploadForm extends Component
             'user_id' => Auth::id(),
         ]);
 
-        $this->dispatch('toast', message: 'Item berhasil ditambahkan!', type: 'success');
+        $this->dispatch('toast', [
+            'message' => 'Item berhasil ditambahkan!',
+            'type' => 'success'
+        ]);
         $this->dispatch('gallery-uploaded');
         $this->closeForm();
         $this->isUploading = false;
@@ -168,7 +188,10 @@ class UploadForm extends Component
 
         $gallery->update($data);
 
-        $this->dispatch('toast', message: 'Item berhasil diperbarui!', type: 'success');
+        $this->dispatch('toast', [
+            'message' => 'Item berhasil diperbarui!',
+            'type' => 'success'
+        ]);
         $this->dispatch('gallery-uploaded');
         $this->closeForm();
         $this->isUploading = false;
@@ -177,6 +200,11 @@ class UploadForm extends Component
     private function resetForm(): void
     {
         $this->reset(['title', 'description', 'category', 'customCategory', 'type', 'file', 'editId', 'isUploading']);
+        
+        if (!$this->isAdmin) {
+            $this->category = Auth::user()->name;
+        }
+        
         $this->resetValidation();
     }
 

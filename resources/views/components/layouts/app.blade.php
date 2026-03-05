@@ -71,33 +71,29 @@
         });
     </script>
 
-    {{-- Intersection Observer for scroll animations --}}
+    {{-- Persistent Observer for scroll animations --}}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('livewire:init', () => {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('animate-visible');
-                        observer.unobserve(entry.target);
                     }
                 });
             }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-        });
+            // Function to re-observe elements
+            const observeNewElements = () => {
+                document.querySelectorAll('.animate-on-scroll:not(.animate-visible)').forEach(el => observer.observe(el));
+            };
 
-        // Re-observe after Livewire updates
-        document.addEventListener('livewire:navigated', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            // Run on initial load and navigation
+            observeNewElements();
+            document.addEventListener('livewire:navigated', observeNewElements);
 
-            document.querySelectorAll('.animate-on-scroll:not(.animate-visible)').forEach(el => observer.observe(el));
+            // Use a mutation observer to watch for dynamic DOM changes (faster than timeouts)
+            const domObserver = new MutationObserver(observeNewElements);
+            domObserver.observe(document.body, { childList: true, subtree: true });
         });
     </script>
 </body>

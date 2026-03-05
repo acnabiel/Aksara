@@ -15,11 +15,13 @@ class GalleryPage extends Component
 {
     use WithPagination;
 
-    #[Url]
     public string $filter = '';
-
-    #[Url]
     public string $category = '';
+
+    protected $queryString = [
+        'filter' => ['except' => ''],
+        'category' => ['except' => ''],
+    ];
 
     public ?int $lightboxId = null;
 

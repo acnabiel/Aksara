@@ -4,7 +4,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
-                <a href="/" wire:navigate class="flex items-center gap-3">
+                <a href="/" wire:navigate class="flex items-center gap-3 group">
+                    <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-8 h-8 object-contain transition-transform group-hover:scale-110">
                     <h1 class="text-xl font-bold font-serif gradient-text">AKSARA</h1>
                     <span class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-primary-500/20 text-primary-400 rounded-full border border-primary-500/30">Admin</span>
                 </a>
@@ -91,7 +92,7 @@
                 </select>
 
                 <select wire:model.live="filterCategory" class="bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white px-3 py-2.5 transition-all focus:border-primary-500/50 w-full sm:w-auto">
-                    <option value="">Semua Kategori</option>
+                    <option value="">Semua Kelas</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat }}">{{ $cat }}</option>
                     @endforeach

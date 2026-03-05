@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('Email   : admin@aksara.com');
         $this->command->info('Password: password');
+        $this->call(ClassSeeder::class);
+        $this->command->info('SUKSES: Data Kelas telah diseed.');
         $this->command->info('---------------------------------------');
     }
 }

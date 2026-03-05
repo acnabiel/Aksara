@@ -3,7 +3,11 @@
     <header class="fixed top-0 left-0 right-0 z-40 glass border-b border-slate-800/50 transition-all duration-300">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <a href="/" wire:navigate class="flex items-center gap-2">
+                <a href="/" wire:navigate class="flex items-center gap-3 group">
+                    <div class="relative w-8 h-8 flex-shrink-0">
+                        <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo AKSARA" class="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-primary-400 blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                    </div>
                     <h1 class="text-xl font-bold font-serif gradient-text tracking-tight">AKSARA</h1>
                 </a>
 
@@ -72,16 +76,18 @@
 
         <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-20">
             {{-- Badge --}}
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/40 border border-slate-700/30 text-xs text-slate-300 mb-8 animate-slide-down backdrop-blur-md">
+            <!-- <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/40 border border-slate-700/30 text-xs text-slate-300 mb-8 animate-slide-down backdrop-blur-md">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-soft"></span>
                 Galeri Kenangan Sekolah
-            </div>
+            </div> -->
 
             {{-- Title --}}
-            <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold font-serif leading-tight animate-slide-up tracking-tight">
-                <span class="text-white drop-shadow-2xl">AKSARA</span>
-                <br>
-                <span class="gradient-text drop-shadow-2xl">SMK BUDI UTOMO</span>
+            <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold font-serif leading-tight animate-slide-up tracking-tight flex flex-col items-center">
+                <!-- <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-12 h-12 md:w-24 md:h-24 object-contain filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] animate-pulse-soft"> -->
+                <div class="flex items-center gap-4 md:gap-8 mb-2">
+                    <span class="text-white drop-shadow-2xl">AKSARA</span>
+                </div>
+                <span class="gradient-text drop-shadow-2xl">SEMKABU</span>
             </h1>
 
             {{-- Subtitle --}}
@@ -116,7 +122,7 @@
     <section id="gallery" class="relative py-20 px-4 sm:px-6 lg:px-8 mesh-gradient">
         <div class="max-w-7xl mx-auto">
             {{-- Section Header --}}
-            <div class="text-center mb-12 animate-on-scroll">
+            <div class="text-center mb-12">
                 <h2 class="text-3xl sm:text-4xl font-bold font-serif text-white">
                     Galeri <span class="gradient-text">Kenangan</span>
                 </h2>
@@ -124,7 +130,7 @@
             </div>
 
             {{-- Filters --}}
-            <div class="flex flex-wrap items-center justify-center gap-3 mb-10 animate-on-scroll">
+            <div class="flex flex-wrap items-center justify-center gap-3 mb-10">
                 {{-- Type Filters --}}
                 <button
                     wire:click="setFilter('')"
@@ -147,7 +153,7 @@
                     Video
                 </button>
 
-                {{-- Category Filters --}}
+                {{-- Class Filters --}}
                 @if($categories->count() > 0)
                     <div class="w-px h-6 bg-slate-700/50 hidden sm:block mx-1"></div>
                     @foreach($categories as $cat)
@@ -228,7 +234,7 @@
                             <h3 class="text-sm font-semibold text-white truncate">{{ $item->title }}</h3>
                             <div class="flex items-center justify-between mt-2">
                                 <span class="inline-block px-2 py-0.5 text-[10px] font-medium text-primary-300 bg-primary-500/10 rounded-md border border-primary-500/20">
-                                    {{ $item->category }}
+                                    {{ \Illuminate\Support\Str::startsWith($item->category, 'Kelas') ? $item->category : 'Kelas ' . $item->category }}
                                 </span>
                                 <span class="text-[10px] text-slate-500">{{ $item->created_at->diffForHumans() }}</span>
                             </div>
@@ -256,6 +262,7 @@
     <footer class="border-t border-slate-800/50 py-10 px-4 sm:px-6 bg-slate-950">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-2">
+                <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-6 h-6 object-contain opacity-80">
                 <span class="text-lg font-bold font-serif gradient-text">AKSARA</span>
                 <span class="text-xs text-slate-600">•</span>
                 <span class="text-xs text-slate-500">Galeri Kenangan Sekolah</span>
@@ -306,7 +313,7 @@
                         <p class="text-sm text-slate-400 mt-1">{{ $lightboxItem->description }}</p>
                     @endif
                     <div class="flex items-center justify-center gap-3 mt-3">
-                        <span class="px-2.5 py-1 text-xs font-medium text-primary-300 bg-primary-500/10 rounded-lg border border-primary-500/20">{{ $lightboxItem->category }}</span>
+                        <span class="px-2.5 py-1 text-xs font-medium text-primary-300 bg-primary-500/10 rounded-lg border border-primary-500/20">{{ \Illuminate\Support\Str::startsWith($lightboxItem->category, 'Kelas') ? $lightboxItem->category : 'Kelas ' . $lightboxItem->category }}</span>
                         <span class="text-xs text-slate-500">{{ $lightboxItem->created_at->format('d M Y') }}</span>
                     </div>
                 </div>

@@ -22,6 +22,12 @@ class Dashboard extends Component
     public string $filterCategory = '';
     public ?int $deleteId = null;
     public bool $showDeleteModal = false;
+    public bool $isAdmin = false;
+
+    public function mount(): void
+    {
+        $this->isAdmin = Auth::user()->email === 'admin@aksara.com' || Auth::user()->email === 'admin@aksara.sch.id';
+    }
 
     public function updatingSearch(): void
     {
@@ -68,7 +74,10 @@ class Dashboard extends Component
             $this->showDeleteModal = false;
             $this->deleteId = null;
 
-            $this->dispatch('toast', message: 'Item berhasil dihapus!', type: 'success');
+            $this->dispatch('toast', [
+                'message' => 'Item berhasil dihapus!',
+                'type' => 'success'
+            ]);
         }
     }
 
@@ -83,7 +92,7 @@ class Dashboard extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-        $this->redirect('/', navigate: true);
+        $this->redirect('/');
     }
 
     public function render()
@@ -98,6 +107,10 @@ class Dashboard extends Component
             });
         }
 
+        if (!$this->isAdmin) {
+            $query->where('user_id', Auth::id());
+        }
+
         if ($this->filterType) {
             $query->where('type', $this->filterType);
         }
@@ -106,14 +119,23 @@ class Dashboard extends Component
             $query->where('category', $this->filterCategory);
         }
 
-        $categories = Gallery::select('category')->distinct()->orderBy('category')->pluck('category');
+        $categoriesQuery = Gallery::query();
+        if (!$this->isAdmin) {
+            $categoriesQuery->where('user_id', Auth::id());
+        }
+        $categories = $categoriesQuery->select('category')->distinct()->orderBy('category')->pluck('category');
+
+        $countsQuery = Gallery::query();
+        if (!$this->isAdmin) {
+            $countsQuery->where('user_id', Auth::id());
+        }
 
         return view('livewire.dashboard', [
             'galleries' => $query->paginate(12),
             'categories' => $categories,
-            'totalPhotos' => Gallery::where('type', 'photo')->count(),
-            'totalVideos' => Gallery::where('type', 'video')->count(),
-            'totalItems' => Gallery::count(),
+            'totalPhotos' => (clone $countsQuery)->where('type', 'photo')->count(),
+            'totalVideos' => (clone $countsQuery)->where('type', 'video')->count(),
+            'totalItems' => (clone $countsQuery)->count(),
         ]);
     }
 }
