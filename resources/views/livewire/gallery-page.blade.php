@@ -75,7 +75,7 @@
             {{-- Grid Pattern Overlay --}}
             <div class="absolute inset-0 grid-pattern opacity-10"></div>
         </div>
-
+   
         <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-20">
             {{-- Title --}}
             <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold font-serif leading-tight animate-slide-up tracking-tight flex flex-col items-center">
