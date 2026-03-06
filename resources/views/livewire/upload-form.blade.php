@@ -45,6 +45,27 @@
                         </div>
                     </div>
 
+                    {{-- Source Selector --}}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Sumber</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" wire:model.live="source" value="upload" class="sr-only peer">
+                                <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-700/50 bg-slate-800/30 text-sm text-slate-400 transition-all peer-checked:border-primary-500/50 peer-checked:bg-primary-500/10 peer-checked:text-primary-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                    Upload File
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" wire:model.live="source" value="gdrive" class="sr-only peer">
+                                <div class="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-700/50 bg-slate-800/30 text-sm text-slate-400 transition-all peer-checked:border-blue-500/50 peer-checked:bg-blue-500/10 peer-checked:text-blue-300">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4.433 22l3.091-5.356h12.943L17.376 22H4.433zm6.837-10.2L4.433 2h6.163l6.837 9.8h-6.163zm1.57.9l-3.091 5.356L3.6 7.656l3.091-5.356L12.84 12.7z"/></svg>
+                                    Google Drive
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     {{-- Title --}}
                     <div>
                         <label for="title" class="block text-sm font-medium text-slate-300 mb-2">Judul</label>
@@ -103,82 +124,137 @@
                         @error('category') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- File Upload --}}
-                    <div x-data="{ preview: null, fileName: '', fileSize: '' }">
-                        <label class="block text-sm font-medium text-slate-300 mb-2">
-                            File {{ $editId ? '(kosongkan jika tidak ingin mengubah)' : '' }}
-                        </label>
-
-                        {{-- Preview --}}
-                        <template x-if="preview">
-                            <div class="relative mb-3 rounded-xl overflow-hidden border border-slate-700/50">
-                                @if($type === 'photo')
-                                    <img :src="preview" class="w-full h-48 object-cover" alt="Preview">
-                                @else
-                                    <video :src="preview" class="w-full h-48 object-cover" controls></video>
-                                @endif
-                                <button
-                                    type="button"
-                                    @click="preview = null; fileName = ''; fileSize = ''; $wire.set('file', null)"
-                                    class="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white transition-colors"
-                                >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                                <div class="absolute bottom-2 left-2 px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm text-[10px] text-white/80">
-                                    <span x-text="fileName"></span> · <span x-text="fileSize"></span>
-                                </div>
-                            </div>
-                        </template>
-
-                        {{-- Drop Zone --}}
-                        <template x-if="!preview">
-                            <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-700/50 rounded-xl bg-slate-800/20 cursor-pointer hover:border-primary-500/50 hover:bg-slate-800/40 transition-all duration-300 group">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-10 h-10 mb-3 text-slate-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                    <p class="text-sm text-slate-400 group-hover:text-slate-300">
-                                        <span class="font-semibold text-primary-400">Klik untuk upload</span> atau drag & drop
-                                    </p>
-                                    <p class="text-xs text-slate-500 mt-1">
-                                        @if($type === 'photo')
-                                            PNG, JPG, GIF, WebP (Maks. 10MB)
-                                        @else
-                                            MP4, MPEG, WebM, MOV (Maks. 100MB)
-                                        @endif
-                                    </p>
-                                </div>
-                                <input
-                                    type="file"
-                                    wire:model="file"
-                                    class="hidden"
-                                    accept="{{ $type === 'photo' ? 'image/jpeg,image/png,image/jpg,image/gif,image/webp' : 'video/mp4,video/mpeg,video/quicktime,video/webm' }}"
-                                    @change="
-                                        const file = $event.target.files[0];
-                                        if (file) {
-                                            preview = URL.createObjectURL(file);
-                                            fileName = file.name;
-                                            const size = file.size;
-                                            if (size >= 1048576) fileSize = (size / 1048576).toFixed(2) + ' MB';
-                                            else if (size >= 1024) fileSize = (size / 1024).toFixed(2) + ' KB';
-                                            else fileSize = size + ' B';
-                                        }
-                                    "
-                                >
-                            </label>
-                        </template>
-
-                        {{-- Upload Progress --}}
-                        <div wire:loading wire:target="file" class="mt-3">
-                            <div class="flex items-center gap-2 text-sm text-primary-400">
-                                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                </svg>
-                                Mengupload file sementara...
-                            </div>
-                        </div>
-
-                        @error('file') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
+                    {{-- Album --}}
+                    <div>
+                        <label for="album" class="block text-sm font-medium text-slate-300 mb-2">Album Sidebar</label>
+                        <select
+                            wire:model="album"
+                            id="album"
+                            class="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white transition-all focus:border-primary-500/50"
+                        >
+                            <option value="Foto Profile">Foto Profile</option>
+                            <option value="Foto Grub">Foto Grub</option>
+                            <option value="Foto Lapangan">Foto Lapangan</option>
+                            <option value="Foto dan Vidio Random">Foto dan Vidio Random</option>
+                        </select>
+                        @error('album') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
+
+                    {{-- Conditional: File Upload OR Google Drive URL --}}
+                    @if($source === 'gdrive')
+                        {{-- Google Drive URL Input --}}
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Link Google Drive
+                                @if($editId)
+                                    <span class="text-slate-500">(kosongkan jika tidak ingin mengubah)</span>
+                                @endif
+                            </label>
+                            
+                            <div class="relative">
+                                <div class="absolute top-3 left-0 flex items-start pl-3">
+                                    <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M4.433 22l3.091-5.356h12.943L17.376 22H4.433zm6.837-10.2L4.433 2h6.163l6.837 9.8h-6.163zm1.57.9l-3.091 5.356L3.6 7.656l3.091-5.356L12.84 12.7z"/></svg>
+                                </div>
+                                <textarea
+                                    wire:model="googleDriveUrl"
+                                    rows="4"
+                                    placeholder="Tempel link Google Drive di sini...&#10;Bisa banyak link sekaligus (satu per baris)&#10;&#10;Contoh:&#10;https://drive.google.com/file/d/.../view?usp=sharing"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-white placeholder-slate-500 transition-all focus:border-blue-500/50 resize-none"
+                                ></textarea>
+                            </div>
+                            
+                            {{-- Help Text --}}
+                            <div class="mt-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                                <p class="text-xs text-blue-300 font-medium mb-1.5">📋 Cara mendapatkan link:</p>
+                                <ol class="text-[11px] text-blue-200/70 space-y-1 list-decimal list-inside">
+                                    <li>Buka file di Google Drive</li>
+                                    <li>Klik kanan → <span class="text-blue-300">Bagikan</span> (Share)</li>
+                                    <li>Ubah akses menjadi <span class="text-blue-300">"Siapa saja yang memiliki link"</span></li>
+                                    <li>Salin link dan tempelkan di sini</li>
+                                </ol>
+                                <p class="text-[11px] text-emerald-300/80 mt-2">💡 <strong>Tips:</strong> Bisa tempel banyak link sekaligus! Pisahkan dengan baris baru (Enter).</p>
+                            </div>
+
+                            @error('googleDriveUrl') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                    @else
+                        {{-- File Upload --}}
+                        <div x-data="{ preview: null, fileName: '', fileSize: '' }">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                File {{ $editId ? '(kosongkan jika tidak ingin mengubah)' : '' }}
+                            </label>
+
+                            {{-- Preview --}}
+                            <template x-if="preview">
+                                <div class="relative mb-3 rounded-xl overflow-hidden border border-slate-700/50">
+                                    @if($type === 'photo')
+                                        <img :src="preview" class="w-full h-48 object-cover" alt="Preview">
+                                    @else
+                                        <video :src="preview" class="w-full h-48 object-cover" controls></video>
+                                    @endif
+                                    <button
+                                        type="button"
+                                        @click="preview = null; fileName = ''; fileSize = ''; $wire.set('file', null)"
+                                        class="absolute top-2 right-2 w-7 h-7 rounded-lg bg-black/50 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                    <div class="absolute bottom-2 left-2 px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm text-[10px] text-white/80">
+                                        <span x-text="fileName"></span> · <span x-text="fileSize"></span>
+                                    </div>
+                                </div>
+                            </template>
+
+                            {{-- Drop Zone --}}
+                            <template x-if="!preview">
+                                <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-700/50 rounded-xl bg-slate-800/20 cursor-pointer hover:border-primary-500/50 hover:bg-slate-800/40 transition-all duration-300 group">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg class="w-10 h-10 mb-3 text-slate-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                        <p class="text-sm text-slate-400 group-hover:text-slate-300">
+                                            <span class="font-semibold text-primary-400">Klik untuk upload</span> atau drag & drop
+                                        </p>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            @if($type === 'photo')
+                                                PNG, JPG, GIF, WebP (Maks. 10MB)
+                                            @else
+                                                MP4, MPEG, WebM, MOV (Maks. 100MB)
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        wire:model="file"
+                                        class="hidden"
+                                        accept="{{ $type === 'photo' ? 'image/jpeg,image/png,image/jpg,image/gif,image/webp' : 'video/mp4,video/mpeg,video/quicktime,video/webm' }}"
+                                        @change="
+                                            const file = $event.target.files[0];
+                                            if (file) {
+                                                preview = URL.createObjectURL(file);
+                                                fileName = file.name;
+                                                const size = file.size;
+                                                if (size >= 1048576) fileSize = (size / 1048576).toFixed(2) + ' MB';
+                                                else if (size >= 1024) fileSize = (size / 1024).toFixed(2) + ' KB';
+                                                else fileSize = size + ' B';
+                                            }
+                                        "
+                                    >
+                                </label>
+                            </template>
+
+                            {{-- Upload Progress --}}
+                            <div wire:loading wire:target="file" class="mt-3">
+                                <div class="flex items-center gap-2 text-sm text-primary-400">
+                                    <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    Mengupload file sementara...
+                                </div>
+                            </div>
+
+                            @error('file') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                    @endif
 
                     {{-- Submit Buttons --}}
                     <div class="flex gap-3 pt-2">

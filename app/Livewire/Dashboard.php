@@ -20,6 +20,7 @@ class Dashboard extends Component
     public string $search = '';
     public string $filterType = '';
     public string $filterCategory = '';
+    public string $filterAlbum = '';
     public ?int $deleteId = null;
     public bool $showDeleteModal = false;
     public bool $isAdmin = false;
@@ -44,25 +45,73 @@ class Dashboard extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterAlbum(): void
+    {
+        $this->resetPage();
+    }
+
+    public function setAlbum(string $album): void
+    {
+        $this->filterAlbum = $album;
+        $this->resetPage();
+    }
+
     public function confirmDelete(int $id): void
     {
-        $this->deleteId = $id;
-        $this->showDeleteModal = true;
+        try {
+            $gallery = Gallery::findOrFail($id);
+            
+            // Ownership check: Admin or (User ID matches OR Category name matches)
+            // Trim comparison to avoid whitespace issues
+            $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
+
+            if (!$this->isAdmin && !$isOwner) {
+                $this->dispatch('toast', [
+                    'message' => 'Anda tidak memiliki akses ke item ini.',
+                    'type' => 'error'
+                ]);
+                return;
+            }
+
+            $this->deleteId = $id;
+            $this->showDeleteModal = true;
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Item tidak ditemukan.',
+                'type' => 'error'
+            ]);
+        }
     }
 
     public function cancelDelete(): void
     {
-        $this->deleteId = null;
-        $this->showDeleteModal = false;
+        $this->reset(['deleteId', 'showDeleteModal']);
     }
 
     public function deleteItem(): void
     {
-        if ($this->deleteId) {
+        if (!$this->deleteId) {
+            $this->cancelDelete();
+            return;
+        }
+
+        try {
             $gallery = Gallery::findOrFail($this->deleteId);
 
+            // Double check ownership
+            $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
+
+            if (!$this->isAdmin && !$isOwner) {
+                $this->dispatch('toast', [
+                    'message' => 'Anda tidak memiliki akses untuk menghapus item ini.',
+                    'type' => 'error'
+                ]);
+                $this->cancelDelete();
+                return;
+            }
+
             // Delete files from storage
-            if (Storage::disk('public')->exists($gallery->file_path)) {
+            if ($gallery->file_path && Storage::disk('public')->exists($gallery->file_path)) {
                 Storage::disk('public')->delete($gallery->file_path);
             }
             if ($gallery->thumbnail_path && Storage::disk('public')->exists($gallery->thumbnail_path)) {
@@ -71,13 +120,19 @@ class Dashboard extends Component
 
             $gallery->delete();
 
-            $this->showDeleteModal = false;
-            $this->deleteId = null;
+            $this->cancelDelete();
+            $this->resetPage();
 
             $this->dispatch('toast', [
                 'message' => 'Item berhasil dihapus!',
                 'type' => 'success'
             ]);
+        } catch (\Exception $e) {
+            $this->dispatch('toast', [
+                'message' => 'Gagal menghapus item: ' . $e->getMessage(),
+                'type' => 'error'
+            ]);
+            $this->cancelDelete();
         }
     }
 
@@ -108,7 +163,7 @@ class Dashboard extends Component
         }
 
         if (!$this->isAdmin) {
-            $query->where('user_id', Auth::id());
+            $query->where('category', Auth::user()->name);
         }
 
         if ($this->filterType) {
@@ -119,15 +174,22 @@ class Dashboard extends Component
             $query->where('category', $this->filterCategory);
         }
 
+        if ($this->filterAlbum) {
+            $query->where('album', $this->filterAlbum);
+        }
+
         $categoriesQuery = Gallery::query();
         if (!$this->isAdmin) {
-            $categoriesQuery->where('user_id', Auth::id());
+            $categoriesQuery->where('category', Auth::user()->name);
         }
         $categories = $categoriesQuery->select('category')->distinct()->orderBy('category')->pluck('category');
 
         $countsQuery = Gallery::query();
         if (!$this->isAdmin) {
-            $countsQuery->where('user_id', Auth::id());
+            $countsQuery->where('category', Auth::user()->name);
+        }
+        if ($this->filterAlbum) {
+            $countsQuery->where('album', $this->filterAlbum);
         }
 
         return view('livewire.dashboard', [

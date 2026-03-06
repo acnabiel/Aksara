@@ -15,8 +15,11 @@ class Gallery extends Model
         'title',
         'description',
         'file_path',
+        'google_drive_url',
+        'source',
         'type',
         'category',
+        'album',
         'thumbnail_path',
         'file_size',
         'user_id',
@@ -35,11 +38,86 @@ class Gallery extends Model
     }
 
     /**
+     * Check if this item is from Google Drive.
+     */
+    public function isGoogleDrive(): bool
+    {
+        return $this->source === 'gdrive' && !empty($this->google_drive_url);
+    }
+
+    /**
+     * Extract Google Drive file ID from various URL formats.
+     */
+    public static function extractGoogleDriveFileId(string $url): ?string
+    {
+        // Format: https://drive.google.com/file/d/FILE_ID/view
+        if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // Format: https://drive.google.com/open?id=FILE_ID
+        if (preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // Format: https://drive.google.com/uc?id=FILE_ID
+        if (preg_match('/uc\?.*id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
+    }
+
+    /**
+     * Get the direct/embeddable URL for Google Drive files.
+     */
+    public function getGoogleDriveDirectUrl(): ?string
+    {
+        if (!$this->google_drive_url) return null;
+        
+        $fileId = self::extractGoogleDriveFileId($this->google_drive_url);
+        if (!$fileId) return null;
+
+        if ($this->isPhoto()) {
+            // Direct image preview
+            return "https://drive.google.com/thumbnail?id={$fileId}&sz=w1200";
+        } else {
+            // Video preview/embed
+            return "https://drive.google.com/file/d/{$fileId}/preview";
+        }
+    }
+
+    /**
+     * Get Google Drive thumbnail URL (for video thumbnails).
+     */
+    public function getGoogleDriveThumbnailUrl(): ?string
+    {
+        if (!$this->google_drive_url) return null;
+        
+        $fileId = self::extractGoogleDriveFileId($this->google_drive_url);
+        if (!$fileId) return null;
+
+        return "https://drive.google.com/thumbnail?id={$fileId}&sz=w600";
+    }
+
+    /**
+     * Get the display URL for this gallery item (works for both upload and gdrive).
+     */
+    public function getDisplayUrl(): string
+    {
+        if ($this->isGoogleDrive()) {
+            return $this->getGoogleDriveDirectUrl() ?? '';
+        }
+        
+        return $this->file_path ? asset('storage/' . $this->file_path) : '';
+    }
+
+    /**
      * Get the file URL.
      */
     public function getFileUrlAttribute(): string
     {
-        return Storage::url($this->file_path);
+        if ($this->isGoogleDrive()) {
+            return $this->getGoogleDriveDirectUrl() ?? '';
+        }
+        return $this->file_path ? Storage::url($this->file_path) : '';
     }
 
     /**
@@ -47,6 +125,9 @@ class Gallery extends Model
      */
     public function getThumbnailUrlAttribute(): ?string
     {
+        if ($this->isGoogleDrive()) {
+            return $this->getGoogleDriveThumbnailUrl();
+        }
         return $this->thumbnail_path ? Storage::url($this->thumbnail_path) : null;
     }
 

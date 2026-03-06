@@ -17,10 +17,12 @@ class GalleryPage extends Component
 
     public string $filter = '';
     public string $category = '';
+    public string $album = '';
 
     protected $queryString = [
         'filter' => ['except' => ''],
         'category' => ['except' => ''],
+        'album' => ['except' => ''],
     ];
 
     public ?int $lightboxId = null;
@@ -35,6 +37,11 @@ class GalleryPage extends Component
         $this->resetPage();
     }
 
+    public function updatingAlbum(): void
+    {
+        $this->resetPage();
+    }
+
     public function setFilter(string $type): void
     {
         $this->filter = $this->filter === $type ? '' : $type;
@@ -44,6 +51,12 @@ class GalleryPage extends Component
     public function setCategory(string $cat): void
     {
         $this->category = $this->category === $cat ? '' : $cat;
+        $this->resetPage();
+    }
+
+    public function setAlbum(string $alb): void
+    {
+        $this->album = $this->album === $alb ? '' : $alb;
         $this->resetPage();
     }
 
@@ -67,6 +80,10 @@ class GalleryPage extends Component
 
         if ($this->category) {
             $query->where('category', $this->category);
+        }
+
+        if ($this->album) {
+            $query->where('album', $this->album);
         }
 
         $categories = GalleryModel::select('category')

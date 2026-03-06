@@ -25,8 +25,66 @@
         </div>
     </nav>
 
-    {{-- Main Content --}}
-    <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    {{-- Main Container --}}
+    <div class="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto flex flex-col md:flex-row gap-6">
+        
+        {{-- Sidebar --}}
+        <aside class="w-full md:w-64 flex-shrink-0 animate-fade-in">
+            <div class="glass rounded-xl p-4 sticky top-24 border border-slate-700/50 relative overflow-hidden">
+                {{-- Decorative background --}}
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+                
+                <div class="flex items-center gap-3 mb-6 px-2 relative z-10">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500/20 to-primary-600/20 flex items-center justify-center border border-primary-500/30 text-primary-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-white truncate max-w-[150px]">{{ Auth::user()->name }}</p>
+                        <p class="text-[10px] text-primary-400 font-medium tracking-wide uppercase">{{ $isAdmin ? 'Administrator' : 'Class Dashboard' }}</p>
+                    </div>
+                </div>
+
+                <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent mb-6 relative z-10"></div>
+
+                <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-2 relative z-10">Menu Album</h3>
+                <ul class="space-y-1.5 relative z-10">
+                    <li>
+                        <button wire:click="setAlbum('')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ $filterAlbum === '' ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span class="text-sm font-medium text-left">Semua Postingan</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button wire:click="setAlbum('Foto Profile')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ $filterAlbum === 'Foto Profile' ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="text-sm font-medium text-left truncate">Foto Profile</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button wire:click="setAlbum('Foto Grub')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ $filterAlbum === 'Foto Grub' ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            <span class="text-sm font-medium text-left truncate">Foto Grub</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button wire:click="setAlbum('Foto Lapangan')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ $filterAlbum === 'Foto Lapangan' ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="text-sm font-medium text-left truncate">Foto Lapangan</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button wire:click="setAlbum('Foto dan Vidio Random')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ $filterAlbum === 'Foto dan Vidio Random' ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span class="text-sm font-medium text-left truncate">Foto & Vidio Random</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        {{-- Main Content --}}
+        <main class="flex-1 min-w-0">
         {{-- Stats Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 animate-fade-in">
             {{-- Total Items --}}
@@ -118,18 +176,38 @@
                     {{-- Media Preview --}}
                     <div class="relative aspect-[4/3] overflow-hidden bg-slate-800">
                         @if($item->isPhoto())
-                            <img
-                                src="{{ asset('storage/' . $item->file_path) }}"
-                                alt="{{ $item->title }}"
-                                class="w-full h-full object-cover"
-                                loading="lazy"
-                            >
+                            @if($item->isGoogleDrive())
+                                <img
+                                    src="{{ $item->getDisplayUrl() }}"
+                                    alt="{{ $item->title }}"
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer"
+                                >
+                            @else
+                                <img
+                                    src="{{ asset('storage/' . $item->file_path) }}"
+                                    alt="{{ $item->title }}"
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                >
+                            @endif
                         @else
-                            <video
-                                src="{{ asset('storage/' . $item->file_path) }}"
-                                class="w-full h-full object-cover"
-                                preload="metadata"
-                            ></video>
+                            @if($item->isGoogleDrive())
+                                <img
+                                    src="{{ $item->getGoogleDriveThumbnailUrl() }}"
+                                    alt="{{ $item->title }}"
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer"
+                                >
+                            @else
+                                <video
+                                    src="{{ asset('storage/' . $item->file_path) }}"
+                                    class="w-full h-full object-cover"
+                                    preload="metadata"
+                                ></video>
+                            @endif
                             <div class="video-play-overlay">
                                 <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
                                     <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -148,6 +226,16 @@
                                 {{ $item->type }}
                             </span>
                         </div>
+
+                        {{-- Source Badge --}}
+                        @if($item->isGoogleDrive())
+                            <div class="absolute top-3 right-3">
+                                <span class="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-sm">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4.433 22l3.091-5.356h12.943L17.376 22H4.433zm6.837-10.2L4.433 2h6.163l6.837 9.8h-6.163zm1.57.9l-3.091 5.356L3.6 7.656l3.091-5.356L12.84 12.7z"/></svg>
+                                    Drive
+                                </span>
+                            </div>
+                        @endif
 
                         {{-- Actions Overlay --}}
                         <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end gap-2">
@@ -197,7 +285,9 @@
         <div class="mt-8">
             {{ $galleries->links() }}
         </div>
+        </div>
     </main>
+    </div>
 
     {{-- Delete Confirmation Modal --}}
     @if($showDeleteModal)

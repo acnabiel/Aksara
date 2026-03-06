@@ -14,6 +14,9 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+
+    {{-- Swiper CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 </head>
 <body class="bg-slate-950 text-white antialiased font-sans min-h-screen" x-data="{ mobileMenu: false }">
 
@@ -96,5 +99,8 @@
             domObserver.observe(document.body, { childList: true, subtree: true });
         });
     </script>
+
+    {{-- Swiper JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </body>
 </html>

@@ -234,24 +234,66 @@
     background-size: 60px 60px;
 }
 
-/* Image hover effect */
-.gallery-item {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
+/* Masonry/Mosaic Gallery Grid */
+.masonry-grid {
+    columns: 2;
+    column-gap: 8px;
 }
 
-.gallery-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+@media (min-width: 640px) {
+    .masonry-grid {
+        columns: 3;
+        column-gap: 10px;
+    }
 }
 
-.gallery-item img,
-.gallery-item video {
-    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+@media (min-width: 1024px) {
+    .masonry-grid {
+        columns: 4;
+        column-gap: 12px;
+    }
 }
 
-.gallery-item:hover img,
-.gallery-item:hover video {
-    transform: scale(1.08);
+@media (min-width: 1280px) {
+    .masonry-grid {
+        columns: 5;
+        column-gap: 12px;
+    }
+}
+
+.masonry-item {
+    break-inside: avoid;
+    margin-bottom: 8px;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+@media (min-width: 640px) {
+    .masonry-item {
+        margin-bottom: 10px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .masonry-item {
+        margin-bottom: 12px;
+    }
+}
+
+.masonry-item:hover {
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+.masonry-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: filter 0.4s ease;
+}
+
+.masonry-item:hover .masonry-img {
+    filter: brightness(0.85);
 }
 
 /* Loading skeleton animation */
@@ -293,8 +335,14 @@ nav[aria-label="Pagination Navigation"] button {
     transition: background 0.3s ease;
 }
 
-.gallery-item:hover .video-play-overlay {
-    background: rgba(0, 0, 0, 0.5);
+/* About card hover */
+.about-card {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
 /* Lightbox */
@@ -367,13 +415,5 @@ select:focus {
 
     90% {
         transform: translate(2%, -2%);
-    }
-}
-
-
-/* Mobile adjustments */
-@media (max-width: 640px) {
-    .gallery-item:hover {
-        transform: translateY(-4px);
     }
 }
