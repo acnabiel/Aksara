@@ -16,6 +16,7 @@
                     <a href="/" wire:navigate class="text-sm text-slate-300 hover:text-white transition-colors">Beranda</a>
                     <a href="#tentang-kami" class="text-sm text-slate-300 hover:text-white transition-colors">Tentang Kami</a>
                     <a href="#gallery" class="text-sm text-slate-300 hover:text-white transition-colors">Galeri</a>
+                    <a href="/crew" wire:navigate class="text-sm text-slate-300 hover:text-white transition-colors">Crew</a>
                     @auth
                         <a href="{{ route('admin.dashboard') }}" wire:navigate class="text-sm px-4 py-2 bg-gradient-to-r from-primary-600/80 to-primary-500/80 border border-primary-500/30 rounded-xl text-white hover:from-primary-500 hover:to-primary-400 transition-all">
                             <span class="flex items-center gap-1.5">
@@ -42,6 +43,7 @@
                 <a href="/" wire:navigate class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors">Beranda</a>
                 <a href="#tentang-kami" @click="mobileMenu = false" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors">Tentang Kami</a>
                 <a href="#gallery" @click="mobileMenu = false" class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors">Galeri</a>
+                <a href="/crew" wire:navigate class="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors">Crew</a>
                 @auth
                     <a href="{{ route('admin.dashboard') }}" wire:navigate class="block px-4 py-2 text-sm text-primary-300 hover:text-white hover:bg-primary-500/10 rounded-lg transition-colors">Dashboard</a>
                 @else
@@ -186,33 +188,82 @@
                     </div>
                 </div>
 
-                {{-- Right: Crew Card Image --}}
-                <div class="flex-shrink-0 animate-on-scroll stagger-2">
-                    <div class="relative group">
+                {{-- Right: Crew Gallery Slider --}}
+                <div class="flex-shrink-0 animate-on-scroll stagger-2 w-full lg:w-auto" x-data="crewSlider()" x-init="initSlider()">
+                    <div class="relative group mx-auto lg:ml-auto max-w-sm">
                         {{-- Glow Effect --}}
                         <div class="absolute -inset-4 bg-gradient-to-r from-primary-500/20 via-accent-500/10 to-primary-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-                        {{-- Card Frame --}}
+                        {{-- Card Frame with Swiper --}}
                         <div class="relative">
                             {{-- Decorative border --}}
                             <div class="absolute -inset-1 bg-gradient-to-br from-primary-500/30 via-slate-700/20 to-accent-500/30 rounded-2xl"></div>
 
-                            {{-- Image Container --}}
-                            <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50" style="max-width: 340px;">
-                                <img
-                                    src="{{ asset('image/crew/rayhan_nur_ardiansyah.png') }}"
-                                    alt="Rayhan Nur Ardiansyah - Sekertaris BT - Crew of AKSARA"
-                                    class="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                                    loading="lazy"
-                                >
+                            {{-- Swiper Container --}}
+                            <div class="swiper crew-swiper relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 aspect-[3/4]" style="max-width: 340px;">
+                                <div class="swiper-wrapper">
+                                    {{-- Crew Member 1 --}}
+                                    <div class="swiper-slide cursor-grab active:cursor-grabbing">
+                                        <img
+                                            src="{{ asset('image/crew/m_bardan_billy.png') }}"
+                                            alt="M. Bardan Billy - Ketua Angkatan - Crew of AKSARA"
+                                            class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                                            loading="lazy"
+                                        >
+                                    </div>
+                                    
+                                    {{-- Crew Member 2 --}}
+                                    <div class="swiper-slide cursor-grab active:cursor-grabbing">
+                                        <img
+                                            src="{{ asset('image/crew/ilham_nabil_hadhani.png') }}"
+                                            alt="Ilham Nabil Hadhani - Wakil Ketua Angkatan - Crew of AKSARA"
+                                            class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                                            loading="lazy"
+                                        >
+                                    </div>
+
+                                    {{-- Crew Member 3 --}}
+                                    <div class="swiper-slide cursor-grab active:cursor-grabbing">
+                                        <img
+                                            src="{{ asset('image/crew/aqilazka.png') }}"
+                                            alt="Aqilazka - Bendahara - Crew of AKSARA"
+                                            class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                                            loading="lazy"
+                                        >
+                                    </div>
+
+                                    {{-- Crew Member 4 --}}
+                                    <div class="swiper-slide cursor-grab active:cursor-grabbing">
+                                        <img
+                                            src="{{ asset('image/crew/rayhan_nur_ardiansyah_2.png') }}"
+                                            alt="Rayhan Nur Ardiansyah - Sekertaris BT - Crew of AKSARA"
+                                            class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                                            loading="lazy"
+                                        >
+                                    </div>
+
+                                    {{-- Crew Member 5 --}}
+                                    <div class="swiper-slide cursor-grab active:cursor-grabbing">
+                                        <img
+                                            src="{{ asset('image/crew/m_galih_amirrullah.png') }}"
+                                            alt="M. Galih Amirrullah - Wakil BT - Crew of AKSARA"
+                                            class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.03]"
+                                            loading="lazy"
+                                        >
+                                    </div>
+                                </div>
+                                
+                                {{-- Crew Navigation inside Swiper --}}
+                                <div class="swiper-button-prev !w-8 !h-8 !bg-black/40 hover:!bg-primary-500 !rounded-full !text-white after:!text-xs backdrop-blur border border-white/20 transition-all opacity-0 group-hover:opacity-100"></div>
+                                <div class="swiper-button-next !w-8 !h-8 !bg-black/40 hover:!bg-primary-500 !rounded-full !text-white after:!text-xs backdrop-blur border border-white/20 transition-all opacity-0 group-hover:opacity-100"></div>
                             </div>
                         </div>
 
                         {{-- Floating Decorations --}}
-                        <div class="absolute -top-6 -right-6 w-12 h-12 rounded-full bg-primary-500/10 border border-primary-500/20 flex items-center justify-center animate-float">
+                        <div class="absolute -top-6 -right-6 w-12 h-12 rounded-full bg-primary-500/10 border border-primary-500/20 flex items-center justify-center animate-float z-10">
                             <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         </div>
-                        <div class="absolute -bottom-4 -left-4 w-8 h-8 rounded-full bg-accent-500/10 border border-accent-500/20 animate-float" style="animation-delay: 1s;"></div>
+                        <div class="absolute -bottom-4 -left-4 w-8 h-8 rounded-full bg-accent-500/10 border border-accent-500/20 animate-float z-10" style="animation-delay: 1s;"></div>
                     </div>
                 </div>
             </div>
@@ -513,9 +564,10 @@
         </div>
     @endif
     
-    {{-- Swiper Initializer Script --}}
+    {{-- Swiper Initializer Scripts --}}
     <script>
         document.addEventListener('alpine:init', () => {
+            // Main Gallery Slider
             Alpine.data('gallerySlider', () => ({
                 swiper: null,
                 initSlider() {
@@ -545,6 +597,33 @@
                             autoplay: {
                                 delay: 5000,
                                 disableOnInteraction: true,
+                                pauseOnMouseEnter: true
+                            }
+                        });
+                    }, 50);
+                }
+            }));
+            
+            // Crew Cards Slider in Tentang Kami
+            Alpine.data('crewSlider', () => ({
+                swiper: null,
+                initSlider() {
+                    setTimeout(() => {
+                        const swiperEl = this.$el.querySelector('.crew-swiper');
+                        if (!swiperEl) return;
+                        
+                        this.swiper = new Swiper(swiperEl, {
+                            effect: 'cards',
+                            grabCursor: true,
+                            speed: 600,
+                            loop: true,
+                            navigation: {
+                                nextEl: this.$el.querySelector('.swiper-button-next'),
+                                prevEl: this.$el.querySelector('.swiper-button-prev'),
+                            },
+                            autoplay: {
+                                delay: 3000,
+                                disableOnInteraction: false,
                                 pauseOnMouseEnter: true
                             }
                         });

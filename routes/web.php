@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\CrewPage;
 use App\Livewire\Dashboard;
 use App\Livewire\GalleryPage;
 use App\Livewire\Login;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', GalleryPage::class)->name('home');
+Route::get('/crew', CrewPage::class)->name('crew');
 
 /*
 |--------------------------------------------------------------------------

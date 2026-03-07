@@ -7,6 +7,8 @@
     <meta name="keywords" content="galeri sekolah, kenangan sekolah, foto sekolah, video sekolah">
     <title>{{ $title ?? 'AKSARA - Galeri Kenangan Sekolah' }}</title>
 
+    <link rel="icon" href="{{ asset('image/aksara_logo.png') }}" type="image/png">
+
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
