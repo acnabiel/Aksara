@@ -189,7 +189,7 @@
                 </div>
 
                 {{-- Right: Crew Gallery Slider --}}
-                <div class="flex-shrink-0 animate-on-scroll stagger-2 w-full lg:w-auto" x-data="crewSlider()" x-init="initSlider()" wire:ignore>
+                <div class="flex-shrink-0 animate-on-scroll stagger-2 w-full lg:w-auto" x-data="{ swiper: null, initSlider() { setTimeout(() => { const swiperEl = this.$el.querySelector('.crew-swiper'); if (!swiperEl) return; this.swiper = new Swiper(swiperEl, { effect: 'cards', grabCursor: true, speed: 600, loop: true, navigation: { nextEl: this.$el.querySelector('.swiper-button-next'), prevEl: this.$el.querySelector('.swiper-button-prev'), }, autoplay: { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true } }); }, 50); } }" x-init="initSlider()" wire:ignore>
                     <div class="relative group mx-auto lg:ml-auto max-w-sm">
                         {{-- Glow Effect --}}
                         <div class="absolute -inset-4 bg-gradient-to-r from-primary-500/20 via-accent-500/10 to-primary-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -350,11 +350,7 @@
             <div wire:loading.remove 
                  wire:key="slider-wrapper-{{ md5($items->pluck('id')->join(',') . $items->currentPage()) }}"
             >
-                <div class="relative w-full max-w-6xl mx-auto py-10" 
-                     x-data="gallerySlider()" 
-                     x-init="initSlider()" 
-                     wire:ignore
-                >
+                <div class="relative w-full max-w-6xl mx-auto py-10" x-data="{ swiper: null, initSlider() { setTimeout(() => { const swiperEl = this.$el.querySelector('.gallery-swiper'); if (!swiperEl) return; this.swiper = new Swiper(swiperEl, { effect: 'slide', grabCursor: true, slidesPerView: 1, spaceBetween: 20, speed: 800, loop: false, pagination: { el: this.$el.querySelector('.swiper-pagination'), clickable: true, dynamicBullets: true, }, navigation: { nextEl: this.$el.querySelector('.swiper-button-next'), prevEl: this.$el.querySelector('.swiper-button-prev'), }, keyboard: { enabled: true, }, autoplay: { delay: 5000, disableOnInteraction: true, pauseOnMouseEnter: true } }); }, 50); } }" x-init="initSlider()" wire:ignore>
                 <div class="swiper gallery-swiper rounded-[2rem] overflow-hidden shadow-2xl border border-slate-700/50">
                     <div class="swiper-wrapper">
                         @forelse($items as $index => $item)
@@ -567,74 +563,7 @@
         </div>
     @endif
     
-    {{-- Swiper Initializer Scripts --}}
-    <script>
-        document.addEventListener('alpine:init', () => {
-            // Main Gallery Slider
-            Alpine.data('gallerySlider', () => ({
-                swiper: null,
-                initSlider() {
-                    setTimeout(() => {
-                        const swiperEl = this.$el.querySelector('.gallery-swiper');
-                        if (!swiperEl) return;
-                        
-                        this.swiper = new Swiper(swiperEl, {
-                            effect: 'slide',
-                            grabCursor: true,
-                            slidesPerView: 1,
-                            spaceBetween: 20,
-                            speed: 800,
-                            loop: false,
-                            pagination: {
-                                el: this.$el.querySelector('.swiper-pagination'),
-                                clickable: true,
-                                dynamicBullets: true,
-                            },
-                            navigation: {
-                                nextEl: this.$el.querySelector('.swiper-button-next'),
-                                prevEl: this.$el.querySelector('.swiper-button-prev'),
-                            },
-                            keyboard: {
-                                enabled: true,
-                            },
-                            autoplay: {
-                                delay: 5000,
-                                disableOnInteraction: true,
-                                pauseOnMouseEnter: true
-                            }
-                        });
-                    }, 50);
-                }
-            }));
-            
-            // Crew Cards Slider in Tentang Kami
-            Alpine.data('crewSlider', () => ({
-                swiper: null,
-                initSlider() {
-                    setTimeout(() => {
-                        const swiperEl = this.$el.querySelector('.crew-swiper');
-                        if (!swiperEl) return;
-                        
-                        this.swiper = new Swiper(swiperEl, {
-                            effect: 'cards',
-                            grabCursor: true,
-                            speed: 600,
-                            loop: true,
-                            navigation: {
-                                nextEl: this.$el.querySelector('.swiper-button-next'),
-                                prevEl: this.$el.querySelector('.swiper-button-prev'),
-                            },
-                            autoplay: {
-                                delay: 3000,
-                                disableOnInteraction: false,
-                                pauseOnMouseEnter: true
-                            }
-                        });
-                    }, 50);
-                }
-            }));
-        });
-    </script>
+
     
     <style>
         .swiper-pagination-bullet {

@@ -1,72 +1,178 @@
 <div class="min-h-screen bg-slate-950">
     {{-- Sidebar & Header --}}
-    <nav class="fixed top-0 left-0 right-0 z-40 glass border-b border-slate-800/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                {{-- Logo --}}
-                <a href="/" wire:navigate class="flex items-center gap-3 group">
-                    <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-8 h-8 object-contain transition-transform group-hover:scale-110">
-                    <h1 class="text-xl font-bold font-serif gradient-text">AKSARA</h1>
-                    <span class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-primary-500/20 text-primary-400 rounded-full border border-primary-500/30">Admin</span>
-                </a>
-
-                {{-- Actions --}}
-                <div class="flex items-center gap-3">
-                    <a href="/" wire:navigate class="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5" title="Lihat Website">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                        <span class="hidden sm:inline">Website</span>
-                    </a>
-                    <button wire:click="logout" class="text-sm text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1.5" title="Keluar">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        <span class="hidden sm:inline">Keluar</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+    
 
     {{-- Main Container --}}
-    <div class="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto flex flex-col md:flex-row gap-6">
+    <div class="flex flex-col min-h-screen">
         
         {{-- Sidebar --}}
-        <aside class="w-full md:w-64 flex-shrink-0 animate-fade-in">
-            <div class="glass rounded-xl p-4 sticky top-24 border border-slate-700/50 relative overflow-hidden">
-                {{-- Decorative background --}}
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl"></div>
-                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"></div>
+        <!-- Sidebar (Instagram style) -->
+        
+        <!-- Sidebar Navigation Start -->
+<!-- Mobile Bottom Nav (Animated Magic Curved Bar) -->
+        <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 pointer-events-none pb-4 sm:pb-6 px-4 sm:px-8">
+            <div class="w-full h-[64px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl flex items-center relative border border-slate-800/50 shadow-2xl shadow-black pointer-events-auto" x-data="{ active: {{ request()->routeIs('admin.dashboard') ? 0 : (request()->routeIs('admin.students') ? 1 : (request()->is('/') ? 2 : 3)) }} }">
                 
-                <div class="flex items-center gap-3 mb-6 px-2 relative z-10">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500/20 to-primary-600/20 flex items-center justify-center border border-primary-500/30 text-primary-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-white truncate max-w-[150px]">{{ Auth::user()->name }}</p>
-                        <p class="text-[10px] text-primary-400 font-medium tracking-wide uppercase">{{ $isAdmin ? 'Administrator' : 'Class Dashboard' }}</p>
-                    </div>
+                <!-- MAGIC INDICATOR with Fake Cutout -->
+                <!-- The border color MUST match the background color behind it to fake a curve. Since our body is bg-slate-950, border-slate-950 perfectly cuts into the nav bg-slate-900. -->
+                <div class="absolute -top-[24px] w-[56px] h-[56px] bg-primary-600 rounded-full border-[6px] border-slate-950 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] shadow-[0_8px_16px_rgba(14,165,233,0.3)] pointer-events-none z-0"
+                     :style="`left: calc((${active} * 25%) + 12.5% - 28px)`">
+                
+                     <!-- Left Gooey Curve -->
+                     <div class="absolute top-[21px] -left-[14px] w-[20px] h-[20px] bg-transparent rounded-tr-full shadow-[8px_-8px_0_0_#020617]"></div>
+                     
+                     <!-- Right Gooey Curve -->
+                     <div class="absolute top-[21px] -right-[14px] w-[20px] h-[20px] bg-transparent rounded-tl-full shadow-[-8px_-8px_0_0_#020617]"></div>
+    
                 </div>
 
-                <div class="w-full h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent mb-6 relative z-10"></div>
-
-                <h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-2 relative z-10">Navigasi Utama</h3>
-                <ul class="space-y-1.5 relative z-10 mb-6">
-                    <li>
-                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <span class="text-sm font-medium text-left">Galeri / Album</span>
+                <ul class="flex w-full h-full relative z-10 bg-transparent">
+                    <!-- Galeri -->
+                    <li class="flex-1 flex w-full">
+                        <a href="{{ route('admin.dashboard') }}" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 0">
+                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
+                                  :class="active === 0 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
+                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                            </span>
+                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300"
+                                  :class="active === 0 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">GALERI</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="{{ route('admin.students') }}" wire:navigate class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 {{ request()->routeIs('admin.students') ? 'bg-gradient-to-r from-primary-500/20 to-transparent text-primary-400 border border-primary-500/30 shadow-[0_0_15px_rgba(14,165,233,0.15)]' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white border border-transparent hover:border-slate-700/50' }}">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            <span class="text-sm font-medium text-left">Data Siswa</span>
+
+                    <!-- Data Siswa -->
+                    <li class="flex-1 flex w-full">
+                        <a href="{{ route('admin.students') }}" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 1">
+                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
+                                  :class="active === 1 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
+                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                            </span>
+                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300"
+                                  :class="active === 1 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">SISWA</span>
                         </a>
+                    </li>
+
+                    <!-- Website Utama -->
+                    <li class="flex-1 flex w-full">
+                        <a href="/" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 2">
+                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
+                                  :class="active === 2 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
+                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </span>
+                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300"
+                                  :class="active === 2 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">WEBSITE</span>
+                        </a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li class="flex-1 flex w-full">
+                        <button wire:click="logout" class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 3">
+                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
+                                  :class="active === 3 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-red-400'">
+                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                </svg>
+                            </span>
+                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300 text-red-400"
+                                  :class="active === 3 ? 'opacity-100' : 'opacity-0 translate-y-4'">KELUAR</span>
+                        </button>
                     </li>
                 </ul>
             </div>
+        </nav>
+
+<!-- Sidebar (Instagram style) -->
+        <aside class="hidden md:flex fixed top-0 left-0 md:w-[80px] md:hover:w-[260px] md:h-screen md:border-t-0 md:border-r border-slate-800/50 flex flex-row md:flex-col z-50 bg-slate-950 md:bg-slate-950/90 md:backdrop-blur-2xl transition-[width] duration-300 ease-in-out group overflow-x-hidden overflow-y-auto custom-scrollbar">
+            <!-- Decorative background -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl pointer-events-none hidden md:block"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none hidden md:block"></div>
+            
+            <!-- Logo (Desktop only) -->
+            <div class="h-20 relative z-10 hidden md:flex items-center px-[16px] w-[260px] shrink-0">
+                <a href="/" wire:navigate class="flex items-center gap-4 group/logo w-full">
+                    <div class="w-12 h-12 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-8 h-8 object-contain transition-transform group-hover/logo:scale-110">
+                    </div>
+                    <h1 class="text-xl font-bold font-serif gradient-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap hidden md:block">AKSARA</h1>
+                </a>
+            </div>
+
+            <!-- Scrollable Nav Links -->
+            <div class="flex-1 w-full md:w-[260px] md:px-3 py-0 md:py-2 relative z-10 flex flex-row md:flex-col items-center md:items-start md:space-y-1 justify-evenly md:justify-start">
+                
+                <a href="{{ route('admin.dashboard') }}" wire:navigate class="flex items-center w-full p-2 md:p-2.5 rounded-xl transition-all duration-300 {{ request()->routeIs('admin.dashboard') ? 'text-primary-400 font-bold bg-primary-500/10' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white' }}" title="Galeri / Album">
+                    <div class="w-10 md:w-[36px] flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6 md:w-[26px] md:h-[26px]" fill="none" stroke="currentColor" stroke-width="{{ request()->routeIs('admin.dashboard') ? '2.5' : '2' }}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    </div>
+                    <span class="hidden md:block ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-[15px] {{ request()->routeIs('admin.dashboard') ? 'font-bold' : 'font-medium' }}">Beranda</span>
+                </a>
+                
+                <a href="{{ route('admin.students') }}" wire:navigate class="flex items-center w-full p-2 md:p-2.5 rounded-xl transition-all duration-300 {{ request()->routeIs('admin.students') ? 'text-primary-400 font-bold bg-primary-500/10' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white' }}" title="Data Siswa">
+                    <div class="w-10 md:w-[36px] flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6 md:w-[26px] md:h-[26px]" fill="none" stroke="currentColor" stroke-width="{{ request()->routeIs('admin.students') ? '2.5' : '2' }}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </div>
+                    <span class="hidden md:block ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-[15px] {{ request()->routeIs('admin.students') ? 'font-bold' : 'font-medium' }}">Data Siswa</span>
+                </a>
+
+                <!-- Mobile only items: Nav links to website and logout -->
+                <a href="/" wire:navigate class="md:hidden flex items-center justify-center p-2 text-slate-400 hover:text-white" title="Website Utama">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                
+                <button wire:click="logout" class="md:hidden flex items-center justify-center p-2 text-slate-400 hover:text-red-400" title="Keluar">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </button>
+                
+                
+                
+            </div>
+
+            <!-- Profile & Action Menu at Bottom (Desktop) -->
+            <div class="hidden md:flex flex-col gap-1 px-3 lg:pb-6 relative z-10 w-[260px] shrink-0">
+                <a href="/" wire:navigate class="flex items-center w-full p-2.5 rounded-xl transition-all duration-300 text-slate-400 hover:bg-slate-800/50 hover:text-white" title="Website Utama">
+                    <div class="w-[36px] flex items-center justify-center shrink-0">
+                        <svg class="w-[26px] h-[26px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </div>
+                    <span class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-[15px] font-medium">Website Utama</span>
+                </a>
+
+                <div class="w-[36px] h-[1px] bg-slate-800 ml-3 my-1"></div>
+
+                <div class="group/menu relative flex items-center w-full p-2.5 rounded-xl hover:bg-slate-800/50 transition-all cursor-pointer">
+                    <div class="w-[36px] flex items-center justify-center shrink-0">
+                        <div class="w-[28px] h-[28px] rounded-full bg-primary-500 overflow-hidden box-border border border-transparent group-hover/menu:border-primary-400 transition-all flex items-center justify-center">
+                            @if(Auth::user()->photo_url)
+                                <img src="{{ Auth::user()->photo_url }}" alt="..." class="w-full h-full object-cover">
+                            @else
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <div class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap flex-1 overflow-hidden">
+                        <p class="text-[14px] font-semibold text-white truncate">{{ Auth::user()->name }}</p>
+                    </div>
+
+                    <!-- Dropdown/Logout Overlay -->
+                    <div class="fixed left-4 bottom-20 mb-0 w-[200px] bg-slate-800 rounded-xl shadow-xl shadow-black/50 border border-slate-700 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 z-50">
+                        <button wire:click="logout" class="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-slate-700/50 rounded-xl flex items-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Keluar Akun
+                        </button>
+                    </div>
+                </div>
+            </div>
         </aside>
 
+
         {{-- Main Content --}}
-        <main class="flex-1 min-w-0">
+        <main class="flex-1 min-w-0 w-full md:pl-[80px] bg-slate-950 min-h-screen transition-all duration-300 overflow-x-hidden">
+            <div class="max-w-[1400px] mx-auto w-full pt-8 md:pt-12 pb-24 md:pb-12 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h2 class="text-2xl font-bold text-white mb-1">Data Siswa</h2>
@@ -153,6 +259,7 @@
             <div class="mt-8">
                 {{ $students->links() }}
             </div>
+        </div>
         </main>
     </div>
 
