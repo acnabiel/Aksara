@@ -189,7 +189,7 @@
                 </div>
 
                 {{-- Right: Crew Gallery Slider --}}
-                <div class="flex-shrink-0 animate-on-scroll stagger-2 w-full lg:w-auto" x-data="crewSlider()" x-init="initSlider()">
+                <div class="flex-shrink-0 animate-on-scroll stagger-2 w-full lg:w-auto" x-data="crewSlider()" x-init="initSlider()" wire:ignore>
                     <div class="relative group mx-auto lg:ml-auto max-w-sm">
                         {{-- Glow Effect --}}
                         <div class="absolute -inset-4 bg-gradient-to-r from-primary-500/20 via-accent-500/10 to-primary-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -348,11 +348,13 @@
 
             {{-- Swiper Gallery Slider --}}
             <div wire:loading.remove 
-                 class="relative w-full max-w-6xl mx-auto py-10" 
-                 x-data="gallerySlider()" 
-                 x-init="initSlider()" 
-                 wire:key="slider-container-{{ md5($items->pluck('id')->join(',') . $items->currentPage()) }}"
+                 wire:key="slider-wrapper-{{ md5($items->pluck('id')->join(',') . $items->currentPage()) }}"
             >
+                <div class="relative w-full max-w-6xl mx-auto py-10" 
+                     x-data="gallerySlider()" 
+                     x-init="initSlider()" 
+                     wire:ignore
+                >
                 <div class="swiper gallery-swiper rounded-[2rem] overflow-hidden shadow-2xl border border-slate-700/50">
                     <div class="swiper-wrapper">
                         @forelse($items as $index => $item)
@@ -464,6 +466,7 @@
                     {{-- Pagination Dots (Now inside the bottom edge) --}}
                     <div class="swiper-pagination !bottom-4 sm:!bottom-6 z-30"></div>
                 </div>
+            </div>
             </div>
 
             {{-- Pagination --}}

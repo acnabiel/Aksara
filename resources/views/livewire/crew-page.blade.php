@@ -100,8 +100,140 @@
         </svg>
 
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Crew of AKSARA Group Photos - Paling Atas --}}
+            <div class="relative mb-20 sm:mb-28 animate-on-scroll" x-data="{ showCrew: false, lightboxImg: null }">
+                {{-- Section Header --}}
+                <div class="flex items-center justify-center mb-10 sm:mb-14 relative">
+                    <div class="hidden sm:block flex-1 h-px border-t-2 border-dashed border-amber-700/40"></div>
+                    <div class="relative mx-4 sm:mx-8 group">
+                        <div class="absolute -inset-3 bg-gradient-to-r from-amber-500 to-yellow-600 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                        <div class="relative flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-600 border border-yellow-400/50 shadow-xl shadow-yellow-500/30">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white font-serif tracking-wide">Crew of AKSARA</h2>
+                                <p class="text-xs text-white/60">Foto Bersama Crew</p>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px]" style="border-top-color: inherit;"></div>
+                    </div>
+                    <div class="hidden sm:block flex-1 h-px border-t-2 border-dashed border-amber-700/40"></div>
+                </div>
+
+                {{-- Group Photos Grid --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto"
+                     x-ref="crewGrid"
+                     x-init="
+                        const obs = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    showCrew = true;
+                                    obs.disconnect();
+                                }
+                            });
+                        }, { threshold: 0.15 });
+                        obs.observe($refs.crewGrid);
+                     ">
+                    {{-- Crew Perempuan --}}
+                    <div class="crew-group-photo-wrapper"
+                         x-show="showCrew"
+                         x-transition:enter="crew-popup-enter"
+                         x-transition:enter-start="crew-popup-enter-start"
+                         x-transition:enter-end="crew-popup-enter-end"
+                         style="display: none;"
+                         @click="lightboxImg = '{{ asset('image/crew/crew_perempuan.jpg') }}'">
+                        <div class="crew-group-photo-card group cursor-pointer relative overflow-hidden rounded-2xl border-2 border-amber-600/40 hover:border-amber-400/70 transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-amber-500/20">
+                            <div class="absolute inset-0 bg-gradient-to-t from-amber-950/80 via-transparent to-transparent z-10 pointer-events-none opacity-60 group-hover:opacity-30 transition-opacity"></div>
+                            <div class="overflow-hidden">
+                                <img src="{{ asset('image/crew/crew_perempuan.jpg') }}"
+                                     alt="Crew of AKSARA - Putri"
+                                     class="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                                     loading="lazy">
+                            </div>
+                            <div class="absolute bottom-0 inset-x-0 z-20 p-4">
+                                <div class="bg-amber-950/70 backdrop-blur-md rounded-lg border border-amber-700/30 px-4 py-2.5">
+                                    <h3 class="text-sm font-bold text-amber-100 font-serif">👩 Crew Putri AKSARA</h3>
+                                </div>
+                            </div>
+                            <div class="absolute top-2 left-2 w-5 h-5 border-l-2 border-t-2 border-amber-500/40 rounded-tl-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute top-2 right-2 w-5 h-5 border-r-2 border-t-2 border-amber-500/40 rounded-tr-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute bottom-2 left-2 w-5 h-5 border-l-2 border-b-2 border-amber-500/40 rounded-bl-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute bottom-2 right-2 w-5 h-5 border-r-2 border-b-2 border-amber-500/40 rounded-br-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                    </div>
+
+                    {{-- Crew Laki-laki --}}
+                    <div class="crew-group-photo-wrapper"
+                         x-show="showCrew"
+                         x-transition:enter="crew-popup-enter crew-popup-delay"
+                         x-transition:enter-start="crew-popup-enter-start"
+                         x-transition:enter-end="crew-popup-enter-end"
+                         style="display: none;"
+                         @click="lightboxImg = '{{ asset('image/crew/crew_lakilaki.jpg') }}'">
+                        <div class="crew-group-photo-card group cursor-pointer relative overflow-hidden rounded-2xl border-2 border-amber-600/40 hover:border-amber-400/70 transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-amber-500/20">
+                            <div class="absolute inset-0 bg-gradient-to-t from-amber-950/80 via-transparent to-transparent z-10 pointer-events-none opacity-60 group-hover:opacity-30 transition-opacity"></div>
+                            <div class="overflow-hidden">
+                                <img src="{{ asset('image/crew/crew_lakilaki.jpg') }}"
+                                     alt="Crew of AKSARA - Putra"
+                                     class="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                                     loading="lazy">
+                            </div>
+                            <div class="absolute bottom-0 inset-x-0 z-20 p-4">
+                                <div class="bg-amber-950/70 backdrop-blur-md rounded-lg border border-amber-700/30 px-4 py-2.5">
+                                    <h3 class="text-sm font-bold text-amber-100 font-serif">👨 Crew Putra AKSARA</h3>
+                                </div>
+                            </div>
+                            <div class="absolute top-2 left-2 w-5 h-5 border-l-2 border-t-2 border-amber-500/40 rounded-tl-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute top-2 right-2 w-5 h-5 border-r-2 border-t-2 border-amber-500/40 rounded-tr-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute bottom-2 left-2 w-5 h-5 border-l-2 border-b-2 border-amber-500/40 rounded-bl-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute bottom-2 right-2 w-5 h-5 border-r-2 border-b-2 border-amber-500/40 rounded-br-sm z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Lightbox for group photos --}}
+                <div x-show="lightboxImg"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0"
+                     @click.self="lightboxImg = null"
+                     @keydown.escape.window="lightboxImg = null"
+                     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                     style="background: rgba(10, 5, 0, 0.92); backdrop-filter: blur(12px); display: none;">
+                    <div class="relative max-w-4xl w-full animate-scale-in">
+                        <button @click="lightboxImg = null" class="absolute -top-12 right-0 text-amber-400/60 hover:text-amber-300 transition-colors z-50">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                        <div class="relative">
+                            <div class="absolute -inset-2 bg-gradient-to-br from-amber-600/30 via-amber-800/20 to-amber-600/30 rounded-2xl blur-sm"></div>
+                            <div class="relative rounded-2xl overflow-hidden border-2 border-amber-600/50 shadow-2xl shadow-amber-900/50">
+                                <img :src="lightboxImg" alt="Crew of AKSARA" class="w-full h-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Dashed path connector to next section --}}
+                <div class="flex flex-col items-center mt-10 sm:mt-14">
+                    <div class="w-px h-8 sm:h-12 border-l-2 border-dashed border-amber-600/30"></div>
+                    <div class="w-4 h-4 rounded-full border-2 border-dashed border-amber-500/50 flex items-center justify-center">
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500/60"></div>
+                    </div>
+                    <div class="w-px h-8 sm:h-12 border-l-2 border-dashed border-amber-600/30"></div>
+                    <svg class="w-4 h-4 text-amber-500/40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12z"/></svg>
+                </div>
+            </div>
+
             @php $positionIndex = 0; @endphp
             @foreach ($crewByPosition as $position => $members)
+
                 @php
                     $isEven = $positionIndex % 2 === 0;
                     $positionIndex++;
@@ -421,6 +553,39 @@
             .crew-card-wrapper .crew-treasure-card {
                 border-radius: 0.75rem;
             }
+        }
+
+        /* === CREW GROUP PHOTO POP-UP ANIMATION === */
+        .crew-popup-enter {
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .crew-popup-enter.crew-popup-delay {
+            transition-delay: 0.2s !important;
+        }
+        .crew-popup-enter-start {
+            opacity: 0 !important;
+            transform: scale(0.3) translateY(60px) !important;
+        }
+        .crew-popup-enter-end {
+            opacity: 1 !important;
+            transform: scale(1) translateY(0) !important;
+        }
+
+        .crew-group-photo-card {
+            background: transparent;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .crew-group-photo-card:hover {
+            box-shadow:
+                0 25px 50px -15px rgba(180, 120, 30, 0.3),
+                0 0 40px -10px rgba(255, 200, 50, 0.2),
+                inset 0 1px 1px rgba(255, 215, 0, 0.1);
+            transform: translateY(-8px);
+        }
+
+        .crew-group-photo-wrapper {
+            will-change: transform, opacity;
         }
     </style>
 </div>

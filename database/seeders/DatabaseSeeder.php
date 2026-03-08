@@ -34,6 +34,8 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Password: password');
         $this->call(ClassSeeder::class);
         $this->command->info('SUKSES: Data Kelas telah diseed.');
+        $this->call(StudentSeeder::class);
+        $this->command->info('SUKSES: Data Siswa telah diseed.');
         $this->command->info('---------------------------------------');
     }
 }

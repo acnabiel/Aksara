@@ -33,6 +33,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get students belonging to this user (class account).
+     */
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class);
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
