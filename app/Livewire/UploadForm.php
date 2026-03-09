@@ -113,7 +113,7 @@ class UploadForm extends Component
 
         $gallery = Gallery::findOrFail($actualId);
 
-        $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
+        $isOwner = (int) $gallery->user_id === (int) Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
 
         if (!$this->isAdmin && !$isOwner) {
             $this->dispatch('toast', [
@@ -303,7 +303,7 @@ class UploadForm extends Component
     {
         $gallery = Gallery::findOrFail($this->editId);
 
-        $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
+        $isOwner = (int) $gallery->user_id === (int) Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
 
         if (!$this->isAdmin && !$isOwner) {
             $this->dispatch('toast', [

@@ -21,8 +21,6 @@ class Dashboard extends Component
     public string $filterType = '';
     public string $filterCategory = '';
     public string $filterAlbum = '';
-    public ?int $deleteId = null;
-    public bool $showDeleteModal = false;
     public bool $isAdmin = false;
 
     public function mount(): void
@@ -56,90 +54,234 @@ class Dashboard extends Component
         $this->resetPage();
     }
 
-    public function confirmDelete(int $id): void
+    /**
+     * Delete a single item by ID.
+     */
+    public function deleteItem(int $id): void
     {
-        try {
-            $gallery = Gallery::findOrFail($id);
-            
-            // Ownership check: Admin or (User ID matches OR Category name matches)
-            // Trim comparison to avoid whitespace issues
-            $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
-
-            if (!$this->isAdmin && !$isOwner) {
-                $this->dispatch('toast', [
-                    'message' => 'Anda tidak memiliki akses ke item ini.',
-                    'type' => 'error'
-                ]);
-                return;
-            }
-
-            $this->deleteId = $id;
-            $this->showDeleteModal = true;
-        } catch (\Exception $e) {
-            $this->dispatch('toast', [
-                'message' => 'Item tidak ditemukan.',
-                'type' => 'error'
-            ]);
-        }
-    }
-
-    public function cancelDelete(): void
-    {
-        $this->reset(['deleteId', 'showDeleteModal']);
-    }
-
-    public function deleteItem(): void
-    {
-        if (!$this->deleteId) {
-            $this->cancelDelete();
+        $gallery = Gallery::find($id);
+        if (!$gallery) {
+            $this->dispatch('toast', ['message' => 'Item tidak ditemukan.', 'type' => 'error']);
             return;
         }
 
-        try {
-            $gallery = Gallery::findOrFail($this->deleteId);
+        if (!$this->canManage($gallery)) {
+            $this->dispatch('toast', ['message' => 'Anda tidak memiliki akses untuk menghapus item ini.', 'type' => 'error']);
+            return;
+        }
 
-            // Double check ownership
-            $isOwner = $gallery->user_id === Auth::id() || trim($gallery->category) === trim(Auth::user()->name);
+        $this->deleteGalleryFiles($gallery);
+        $gallery->delete();
 
-            if (!$this->isAdmin && !$isOwner) {
-                $this->dispatch('toast', [
-                    'message' => 'Anda tidak memiliki akses untuk menghapus item ini.',
-                    'type' => 'error'
-                ]);
-                $this->cancelDelete();
+        $this->resetPage();
+        $this->dispatch('toast', ['message' => 'Item berhasil dihapus!', 'type' => 'success']);
+    }
+
+    /**
+     * Bulk prepare & download files as a ZIP archive
+     */
+    public function bulkDownload(array $ids)
+    {
+        if (empty($ids)) {
+            $this->dispatch('toast', ['message' => 'Pilih item terlebih dahulu.', 'type' => 'error']);
+            return;
+        }
+
+        $galleries = Gallery::whereIn('id', $ids)->get();
+        if ($galleries->isEmpty()) {
+            $this->dispatch('toast', ['message' => 'Item tidak ditemukan.', 'type' => 'error']);
+            return;
+        }
+
+        $this->dispatch('bulk-action-done');
+
+        // If only 1 file is selected
+        if ($galleries->count() === 1) {
+            $gallery = $galleries->first();
+            
+            if ($gallery->isGoogleDrive()) {
+                // If it's a Google Drive file, dispatch an event to open it in a new tab
+                $this->dispatch('open-url', ['url' => $gallery->google_drive_url]);
+                $this->dispatch('toast', ['message' => 'Membuka link Google Drive...', 'type' => 'success']);
                 return;
             }
 
-            // Delete files from storage
-            if ($gallery->file_path && Storage::disk('public')->exists($gallery->file_path)) {
-                Storage::disk('public')->delete($gallery->file_path);
-            }
-            if ($gallery->thumbnail_path && Storage::disk('public')->exists($gallery->thumbnail_path)) {
-                Storage::disk('public')->delete($gallery->thumbnail_path);
+            $path = storage_path('app/public/' . $gallery->file_path);
+            if (!file_exists($path)) {
+                $this->dispatch('toast', ['message' => 'File tidak ditemukan di server.', 'type' => 'error']);
+                return;
             }
 
-            $gallery->delete();
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
+            $safeTitle = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $gallery->title);
+            $filename = $safeTitle ? "{$safeTitle}.{$extension}" : basename($path);
 
-            $this->cancelDelete();
-            $this->resetPage();
+            return response()->download($path, $filename);
+        }
 
-            $this->dispatch('toast', [
-                'message' => 'Item berhasil dihapus!',
-                'type' => 'success'
-            ]);
-        } catch (\Exception $e) {
-            $this->dispatch('toast', [
-                'message' => 'Gagal menghapus item: ' . $e->getMessage(),
-                'type' => 'error'
-            ]);
-            $this->cancelDelete();
+        // Multiple files logic (ZIP)
+        $downloadsPath = storage_path('app/public/downloads');
+        if (!file_exists($downloadsPath)) {
+            mkdir($downloadsPath, 0755, true);
+        }
+
+        $zipFileName = 'AKSARA_Files_' . time() . '.zip';
+        $zipFile = $downloadsPath . '/' . $zipFileName;
+
+        $addedFiles = 0;
+        $gdriveLinks = [];
+        $filesToZip = [];
+
+        // Extract valid files to zip
+        foreach ($galleries as $gallery) {
+            if ($gallery->isGoogleDrive()) {
+                // Save google drive links to be included in a text file
+                $gdriveLinks[] = "Title: " . $gallery->title . "\nType: " . $gallery->type . "\nLink: " . $gallery->google_drive_url . "\n------------------------";
+                continue; 
+            }
+            $path = storage_path('app/public/' . $gallery->file_path);
+            if (file_exists($path)) {
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+                $safeTitle = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $gallery->title);
+                $filename = $safeTitle ? "{$safeTitle}_{$gallery->id}.{$extension}" : basename($path);
+                $filesToZip[$filename] = $path;
+            }
+        }
+
+        // Create a temporary text file for Google Drive links if any exist
+        $gdriveTxtPath = null;
+        if (!empty($gdriveLinks)) {
+            $gdriveTxtPath = $downloadsPath . '/Google_Drive_Links_' . time() . '.txt';
+            file_put_contents($gdriveTxtPath, "Link Google Drive untuk file yang tidak dapat didownload secara langsung:\n\n" . implode("\n", $gdriveLinks));
+            $filesToZip['Link_Google_Drive.txt'] = $gdriveTxtPath;
+        }
+
+        if (empty($filesToZip)) {
+            $this->dispatch('toast', ['message' => 'Tidak ada file untuk didownload.', 'type' => 'error']);
+            return;
+        }
+
+        // Attempt to create ZIP using ZipArchive (if PHP extension is installed)
+        if (class_exists('ZipArchive')) {
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($filesToZip as $filename => $path) {
+                    $zip->addFile($path, $filename);
+                    $addedFiles++;
+                }
+                $zip->close();
+            }
+        } else {
+            // Fallback: Use OS zip command if ZipArchive is missing
+            $chdir = "cd " . escapeshellarg($downloadsPath) . " && ";
+            $zipCommandArgs = [];
+            
+            foreach ($filesToZip as $filename => $path) {
+                if ($path !== $downloadsPath . '/' . escapeshellarg($filename)) { // Don't copy if it's already there (like the txt file)
+                    $tmpPath = $downloadsPath . '/' . $filename;
+                    if ($path !== $tmpPath) {
+                       copy($path, $tmpPath);
+                    }
+                }
+                $zipCommandArgs[] = escapeshellarg($filename);
+                $addedFiles++;
+            }
+            
+            if ($addedFiles > 0) {
+                $command = $chdir . "zip -j -T " . escapeshellarg($zipFileName) . " " . implode(" ", $zipCommandArgs) . " > /dev/null 2>&1";
+                exec($command, $output, $returnCode);
+                
+                // Cleanup temp files
+                foreach ($zipCommandArgs as $tmpFile) {
+                    $cleanPath = $downloadsPath . '/' . trim($tmpFile, "'\"");
+                    if (file_exists($cleanPath) && $cleanPath !== $gdriveTxtPath && $cleanPath !== $zipFile) {
+                        @unlink($cleanPath);
+                    }
+                }
+                
+                if ($returnCode !== 0) {
+                    if ($gdriveTxtPath && file_exists($gdriveTxtPath)) @unlink($gdriveTxtPath);
+                    $this->dispatch('toast', ['message' => 'Gagal membuat file ZIP. Pastikan ekstensi PHP Zip terinstall.', 'type' => 'error']);
+                    return;
+                }
+            }
+        }
+
+        // Clean up the text file after zipped
+        if ($gdriveTxtPath && file_exists($gdriveTxtPath)) {
+            @unlink($gdriveTxtPath);
+        }
+
+        if ($addedFiles > 0 && file_exists($zipFile)) {
+            return response()->download($zipFile)->deleteFileAfterSend(true);
+        } else {
+            $this->dispatch('toast', ['message' => 'Gagal membuat file ZIP. Ekstensi zip mungkin tidak aktif.', 'type' => 'error']);
+        }
+    }
+
+    /**
+     * Bulk delete items by array of IDs.
+     */
+    public function bulkDelete(array $ids): void
+    {
+        if (empty($ids)) {
+            $this->dispatch('toast', ['message' => 'Pilih item terlebih dahulu.', 'type' => 'error']);
+            return;
+        }
+
+        $galleries = Gallery::whereIn('id', $ids)->get();
+        $deleted = 0;
+
+        foreach ($galleries as $gallery) {
+            if ($this->canManage($gallery)) {
+                $this->deleteGalleryFiles($gallery);
+                $gallery->delete();
+                $deleted++;
+            }
+        }
+
+        $this->resetPage();
+        $this->dispatch('toast', [
+            'message' => $deleted . ' item berhasil dihapus!',
+            'type' => 'success',
+        ]);
+        $this->dispatch('bulk-delete-done');
+    }
+
+    /**
+     * Check whether the current user can manage this gallery item.
+     */
+    private function canManage(Gallery $gallery): bool
+    {
+        if ($this->isAdmin) {
+            return true;
+        }
+        if ((int) $gallery->user_id === (int) Auth::id()) {
+            return true;
+        }
+        if (trim($gallery->category) === trim(Auth::user()->name)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Delete local files for a gallery item.
+     */
+    private function deleteGalleryFiles(Gallery $gallery): void
+    {
+        if ($gallery->file_path && Storage::disk('public')->exists($gallery->file_path)) {
+            Storage::disk('public')->delete($gallery->file_path);
+        }
+        if ($gallery->thumbnail_path && Storage::disk('public')->exists($gallery->thumbnail_path)) {
+            Storage::disk('public')->delete($gallery->thumbnail_path);
         }
     }
 
     #[On('gallery-uploaded')]
     public function refreshList(): void
     {
-        // This will refresh the component automatically
+        // triggers re-render
     }
 
     public function logout(): void

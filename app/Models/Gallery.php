@@ -27,6 +27,7 @@ class Gallery extends Model
 
     protected $casts = [
         'file_size' => 'integer',
+        'user_id' => 'integer',
     ];
 
     /**
