@@ -44,6 +44,7 @@ class UploadForm extends Component
     public bool $isUploading = false;
     public ?int $editId = null;
     public bool $isAdmin = false;
+    public bool $hideButton = false;
 
     public function mount(): void
     {
@@ -90,6 +91,7 @@ class UploadForm extends Component
         'file' => 'nullable|mimetypes:video/mp4,video/mpeg,video/quicktime,video/webm,video/avi|max:102400',
     ];
 
+    #[On('open-form')]
     public function openForm(): void
     {
         $this->resetForm();

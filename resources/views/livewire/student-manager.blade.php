@@ -9,21 +9,45 @@
         <!-- Sidebar (Instagram style) -->
         
         <!-- Sidebar Navigation Start -->
+<!-- Mobile Header -->
+        <header class="md:hidden sticky top-0 left-0 w-full bg-slate-900/95 backdrop-blur-2xl border-b border-slate-800/50 z-50 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('image/aksara_logo.png') }}" alt="Logo" class="w-8 h-8 object-contain">
+                <h1 class="text-xl font-bold font-serif gradient-text">AKSARA</h1>
+            </div>
+            
+            <div class="relative group/mobile-menu" x-data="{ open: false }">
+                <button @click="open = !open" @click.away="open = false" class="w-10 h-10 rounded-full bg-primary-500 overflow-hidden border-2 border-slate-800 hover:border-primary-400 transition-all flex items-center justify-center relative">
+                    @if(Auth::user()->photo_url)
+                        <img src="{{ Auth::user()->photo_url }}" alt="..." class="w-full h-full object-cover">
+                    @else
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    @endif
+                </button>
+                
+                <div x-show="open" x-transition.opacity duration.200ms class="absolute right-0 mt-2 w-48 bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden z-50" style="display: none;">
+                    <div class="px-4 py-3 border-b border-slate-700/50">
+                        <p class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</p>
+                    </div>
+                    <a href="/" wire:navigate class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        Website Utama
+                    </a>
+                    <button wire:click="logout" class="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-slate-700/50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Keluar Akun
+                    </button>
+                </div>
+            </div>
+        </header>
+
 <!-- Mobile Bottom Nav (Animated Magic Curved Bar) -->
         <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 pointer-events-none pb-4 sm:pb-6 px-4 sm:px-8">
-            <div class="w-full h-[64px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl flex items-center relative border border-slate-800/50 shadow-2xl shadow-black pointer-events-auto" x-data="{ active: {{ request()->routeIs('admin.dashboard') ? 0 : (request()->routeIs('admin.students') ? 1 : (request()->is('/') ? 2 : 3)) }} }">
+            <div class="w-full h-[64px] bg-slate-900/95 backdrop-blur-2xl rounded-2xl flex items-center relative border border-slate-800/50 shadow-2xl shadow-black pointer-events-auto" x-data="{ active: {{ request()->routeIs('admin.dashboard') ? 0 : (request()->routeIs('admin.students') ? 2 : 0) }} }">
                 
-                <!-- MAGIC INDICATOR with Fake Cutout -->
-                <!-- The border color MUST match the background color behind it to fake a curve. Since our body is bg-slate-950, border-slate-950 perfectly cuts into the nav bg-slate-900. -->
-                <div class="absolute -top-[24px] w-[56px] h-[56px] bg-primary-600 rounded-full border-[6px] border-slate-950 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] shadow-[0_8px_16px_rgba(14,165,233,0.3)] pointer-events-none z-0"
-                     :style="`left: calc((${active} * 25%) + 12.5% - 28px)`">
-                
-                     <!-- Left Gooey Curve -->
-                     <div class="absolute top-[21px] -left-[14px] w-[20px] h-[20px] bg-transparent rounded-tr-full shadow-[8px_-8px_0_0_#020617]"></div>
-                     
-                     <!-- Right Gooey Curve -->
-                     <div class="absolute top-[21px] -right-[14px] w-[20px] h-[20px] bg-transparent rounded-tl-full shadow-[-8px_-8px_0_0_#020617]"></div>
-    
+                <!-- MAGIC INDICATOR -->
+                <div class="absolute -top-[24px] w-[56px] h-[56px] bg-primary-600 rounded-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] shadow-[0_8px_16px_rgba(14,165,233,0.3)] pointer-events-none z-0"
+                     :style="`left: calc((${active} * 33.333%) + 16.666% - 28px)`">
                 </div>
 
                 <ul class="flex w-full h-full relative z-10 bg-transparent">
@@ -41,47 +65,31 @@
                         </a>
                     </li>
 
+                    <!-- Upload Button (Tengah) -->
+                    <li class="flex-1 flex w-full relative z-30">
+                        <button wire:click="$dispatchTo('upload-form', 'open-form')" class="w-full h-full flex items-center justify-center group focus:outline-none">
+                            <div class="absolute -top-[24px] w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-primary-600 to-primary-400 border-[6px] border-slate-950 flex items-center justify-center text-white shadow-[0_8px_16px_rgba(14,165,233,0.3)] transition-transform duration-300 group-active:scale-95 group-hover:-translate-y-1">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                        </button>
+                    </li>
+
                     <!-- Data Siswa -->
                     <li class="flex-1 flex w-full">
-                        <a href="{{ route('admin.students') }}" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 1">
+                        <a href="{{ route('admin.students') }}" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 2">
                             <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
-                                  :class="active === 1 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
+                                  :class="active === 2 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
                                 <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
                             </span>
                             <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300"
-                                  :class="active === 1 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">SISWA</span>
+                                  :class="active === 2 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">SISWA</span>
                         </a>
                     </li>
 
-                    <!-- Website Utama -->
-                    <li class="flex-1 flex w-full">
-                        <a href="/" wire:navigate class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 2">
-                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
-                                  :class="active === 2 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-primary-300'">
-                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                </svg>
-                            </span>
-                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300"
-                                  :class="active === 2 ? 'opacity-100 text-primary-400' : 'opacity-0 translate-y-4'">WEBSITE</span>
-                        </a>
-                    </li>
-
-                    <!-- Logout -->
-                    <li class="flex-1 flex w-full">
-                        <button wire:click="logout" class="w-full h-full flex flex-col items-center justify-center relative group" @click="active = 3">
-                            <span class="absolute flex items-center justify-center w-full h-full transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)] z-20"
-                                  :class="active === 3 ? '-translate-y-[24px] text-white' : 'text-slate-400 group-hover:text-red-400'">
-                                <svg class="w-[22px] h-[22px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                                </svg>
-                            </span>
-                            <span class="absolute bottom-1.5 text-[9px] font-semibold tracking-wider transition-all duration-300 text-red-400"
-                                  :class="active === 3 ? 'opacity-100' : 'opacity-0 translate-y-4'">KELUAR</span>
-                        </button>
-                    </li>
                 </ul>
             </div>
         </nav>
@@ -351,4 +359,7 @@
             </div>
         </div>
     @endif
+
+    {{-- Global Upload Component for Mobile Action Button --}}
+    <livewire:upload-form :hideButton="true" />
 </div>
