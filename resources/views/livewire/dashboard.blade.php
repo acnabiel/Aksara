@@ -419,7 +419,7 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="mt-8">{{ $galleries->links() }}</div>
+        <div class="mt-8">{{ $galleries->links('vendor.pagination.custom-tailwind') }}</div>
             </div>
         </main>
     </div>
