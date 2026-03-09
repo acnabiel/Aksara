@@ -165,6 +165,32 @@ class Gallery extends Model
     }
 
     /**
+     * Get Google Drive direct download URL (bypasses the preview page).
+     */
+    public function getGoogleDriveDownloadUrl(): ?string
+    {
+        if (!$this->google_drive_url) return null;
+
+        $fileId = self::extractGoogleDriveFileId($this->google_drive_url);
+        if (!$fileId) return null;
+
+        // This URL forces direct download from Google Drive
+        return "https://drive.google.com/uc?export=download&id={$fileId}";
+    }
+
+    /**
+     * Get the appropriate file extension for download.
+     * Photos: jpg, Videos: mp4
+     */
+    public function getDownloadExtension(): string
+    {
+        if ($this->isPhoto()) {
+            return 'jpg';
+        }
+        return 'mp4';
+    }
+
+    /**
      * Check if this is a photo.
      */
     public function isPhoto(): bool
